@@ -1,5 +1,7 @@
 package com.benmedcalf.alltrailshomework.model.remote
 
+import com.benmedcalf.alltrailshomework.model.remote.nearbySearch.NearbySearchResponse
+import com.benmedcalf.alltrailshomework.model.remote.placeDetails.PlaceDetailsResponse
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
@@ -31,15 +33,30 @@ object GooglePlacesService {
     interface PlacesAPI {
         /*
         DOCS: https://developers.google.com/maps/documentation/places/web-service/details
+        TODO: How to edit fields queryParam
+        See Common.Result class for available fields. fields queryParam is comma delimited list of property names
         */
-        @GET("/place/json")
-        suspend fun getPlaceDetails(@Query("place_id") placeId: String): Response<PlaceDetailsResponse>
+        @GET("/details/json")
+        suspend fun getPlaceDetails(
+            @Query("fields") fields: String,
+            @Query("place_id") placeId: String,
+            @Query("key") key: String
+        ): Response<PlaceDetailsResponse>
 
         /*
         DOCS: https://developers.google.com/maps/documentation/places/web-service/search
         */
-        // TODO: We need to specify restaurants here
-        @GET("/nearbysearch")
-        suspend fun searchPlaces(@Query("radius") radius: Int)
+        // TODO: We need to specify restaurants here / update params
+        @GET("/nearbysearch/json")
+        suspend fun searchPlaces(@Query("radius") radius: Int): Response<NearbySearchResponse>
+
+        /*
+         https://maps.googleapis.com/maps/api/place/findplacefromtext/json
+         ?fields=formatted_address%2Cname%2Crating%2Copening_hours%2Cgeometry&input=Museum%20of%20Contemporary%20Art%20Australia
+         &inputtype=textquery
+         &key=YOURAPIKEY
+         */
+        @GET("/findplacefromtext/json")
+        suspend fun searchByName(@Query("input") input: String): Response<PlaceDetailsResponse>
     }
 }
