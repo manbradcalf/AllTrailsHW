@@ -12,7 +12,7 @@ import retrofit2.http.Query
 
 object GooglePlacesService {
     //TODO: Move to a config
-    private const val baseURL = "https://maps.googleapis.com/maps/api/place"
+    private const val baseURL = "https://maps.googleapis.com/maps/api/place/"
 
     // Singleton PlacesAPI instance
     val instance: PlacesAPI by lazy {
@@ -36,7 +36,7 @@ object GooglePlacesService {
         TODO: How to edit fields queryParam
         See Common.Result class for available fields. fields queryParam is comma delimited list of property names
         */
-        @GET("/details/json")
+        @GET("details/json")
         suspend fun getPlaceDetails(
             @Query("fields") fields: String,
             @Query("place_id") placeId: String,
@@ -45,18 +45,16 @@ object GooglePlacesService {
 
         /*
         DOCS: https://developers.google.com/maps/documentation/places/web-service/search
+        TODO: Do we need fields here?
         */
-        // TODO: We need to specify restaurants here / update params
-        @GET("/nearbysearch/json")
+        @GET("nearbysearch/json")
         suspend fun searchPlaces(@Query("radius") radius: Int): Response<NearbySearchResponse>
 
-        /*
-         https://maps.googleapis.com/maps/api/place/findplacefromtext/json
-         ?fields=formatted_address%2Cname%2Crating%2Copening_hours%2Cgeometry&input=Museum%20of%20Contemporary%20Art%20Australia
-         &inputtype=textquery
-         &key=YOURAPIKEY
-         */
-        @GET("/findplacefromtext/json")
-        suspend fun searchByName(@Query("input") input: String): Response<PlaceDetailsResponse>
+        @GET("findplacefromtext/json")
+        suspend fun searchByName(
+            @Query("input") input: String,
+            @Query("fields") fields: String,
+            @Query("key") key: String
+        ): Response<PlaceDetailsResponse>
     }
 }
