@@ -1,5 +1,6 @@
 package com.benmedcalf.alltrailshomework.model.remote
 
+import com.benmedcalf.alltrailshomework.BuildConfig
 import com.benmedcalf.alltrailshomework.model.remote.nearbySearch.NearbySearchResponse
 import com.benmedcalf.alltrailshomework.model.remote.placeDetails.PlaceDetailsResponse
 import okhttp3.OkHttpClient
@@ -11,15 +12,25 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 object GooglePlacesService {
-    //TODO: Move to a config
     private const val baseURL = "https://maps.googleapis.com/maps/api/place/"
+    private const val key = BuildConfig.apikey
 
-    // Singleton PlacesAPI instance
     val instance: PlacesAPI by lazy {
-        // Create the logging interceptor
-        val interceptor = HttpLoggingInterceptor()
-        interceptor.level = HttpLoggingInterceptor.Level.BODY
-        val client = OkHttpClient.Builder().addInterceptor(interceptor).build()
+        val okHttpBuilder = OkHttpClient.Builder()
+        val httpLoggingInterceptor = HttpLoggingInterceptor()
+        httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+
+        val client = okHttpBuilder
+            // For logging
+            .addInterceptor(httpLoggingInterceptor)
+            // For adding key to every request as query param per maps docs
+            .addInterceptor { chain ->
+                val request = chain.request().newBuilder()
+                val originalHttpUrl = chain.request().url
+                val url = originalHttpUrl.newBuilder().addQueryParameter("key", key).build()
+                request.url(url)
+                return@addInterceptor chain.proceed(request.build())
+            }.build()
 
         val retrofit = Retrofit.Builder()
             .baseUrl(baseURL)
@@ -31,30 +42,21 @@ object GooglePlacesService {
     }
 
     interface PlacesAPI {
-        /*
-        DOCS: https://developers.google.com/maps/documentation/places/web-service/details
-        TODO: How to edit fields queryParam
-        See Common.Result class for available fields. fields queryParam is comma delimited list of property names
-        */
+        // https://developers.google.com/maps/documentation/places/web-service/details
         @GET("details/json")
         suspend fun getPlaceDetails(
             @Query("fields") fields: String,
-            @Query("place_id") placeId: String,
-            @Query("key") key: String
+            @Query("place_id") placeId: String
         ): Response<PlaceDetailsResponse>
 
-        /*
-        DOCS: https://developers.google.com/maps/documentation/places/web-service/search
-        TODO: Do we need fields here?
-        */
+        // https://developers.google.com/maps/documentation/places/web-service/search
         @GET("nearbysearch/json")
         suspend fun searchPlaces(@Query("radius") radius: Int): Response<NearbySearchResponse>
 
         @GET("findplacefromtext/json")
         suspend fun searchByName(
             @Query("input") input: String,
-            @Query("fields") fields: String,
-            @Query("key") key: String
+            @Query("fields") fields: String
         ): Response<PlaceDetailsResponse>
     }
 }

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph.xml"
+    app:startDestination="@id/mapResultsFragment">
+
+    <fragment
+        android:id="@+id/mapResultsFragment"
+        android:name="com.benmedcalf.alltrailshomework.view.MapResultsFragment"
+        android:label="fragment_maps"
+        tools:layout="@layout/fragment_maps" >
+        <action
+            android:id="@+id/action_mapResultsFragment_to_detailFragment"
+            app:destination="@id/detailFragment" />
+        <action
+            android:id="@+id/action_mapResultsFragment_to_listResultsFragment"
+            app:destination="@id/listResultsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/detailFragment"
+        android:name="com.benmedcalf.alltrailshomework.view.DetailFragment"
+        android:label="restaurant_detail_fragment"
+        tools:layout="@layout/restaurant_detail_fragment" >
+        <argument
+            android:name="placeId"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/listResultsFragment"
+        android:name="com.benmedcalf.alltrailshomework.view.ListResultsFragment"
+        android:label="fragment_item_list"
+        tools:layout="@layout/fragment_item_list" >
+        <action
+            android:id="@+id/action_listResultsFragment_to_detailFragment"
+            app:destination="@id/detailFragment" />
+    </fragment>
+</navigation>

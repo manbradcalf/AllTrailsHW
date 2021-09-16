@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">AllTrails Homework</string>
+    <string name="toggle_description">Toggles between Map and List Views</string>
 </resources>
