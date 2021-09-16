@@ -21,7 +21,7 @@
         android:id="@+id/detailFragment"
         android:name="com.benmedcalf.alltrailshomework.view.DetailFragment"
         android:label="restaurant_detail_fragment"
-        tools:layout="@layout/restaurant_detail_fragment" >
+        tools:layout="@layout/detail_fragment" >
         <argument
             android:name="placeId"
             app:argType="string" />

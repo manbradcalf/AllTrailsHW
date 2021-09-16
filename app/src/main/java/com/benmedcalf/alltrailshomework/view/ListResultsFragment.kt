@@ -15,16 +15,8 @@ import com.benmedcalf.alltrailshomework.view.placeholder.PlaceholderContent
  */
 class ListResultsFragment : Fragment() {
 
-    // Nullable in case user goes to list with no results. Should it be this way?
-    private var placesIds: IntArray? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // get the ids of the places (restaurants) we wish to load
-        arguments?.let {
-            placesIds = it.getIntArray(ARG_PLACES_IDS)
-        }
     }
 
     override fun onCreateView(
@@ -41,18 +33,5 @@ class ListResultsFragment : Fragment() {
             }
         }
         return view
-    }
-
-    companion object {
-        const val ARG_PLACES_IDS = "places-ids"
-
-        @JvmStatic
-        fun newInstance(placesIds: IntArray) =
-            ListResultsFragment().apply {
-                // Set fragment args
-                arguments = Bundle().apply {
-                    putIntArray(ARG_PLACES_IDS, placesIds)
-                }
-            }
     }
 }

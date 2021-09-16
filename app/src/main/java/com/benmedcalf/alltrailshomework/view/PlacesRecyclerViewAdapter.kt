@@ -4,9 +4,9 @@ import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
+import com.benmedcalf.alltrailshomework.databinding.FragmentItemBinding
 
 import com.benmedcalf.alltrailshomework.view.placeholder.PlaceholderContent.PlaceholderItem
-import com.benmedcalf.alltrailshomework.view.databinding.FragmentItemBinding
 
 /**
  * [RecyclerView.Adapter] that can display a [PlaceholderItem].

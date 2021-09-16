@@ -1,55 +1,50 @@
 package com.benmedcalf.alltrailshomework.view
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.benmedcalf.alltrailshomework.R
-import com.benmedcalf.alltrailshomework.model.remote.PlaceDetailsResponse
-import com.benmedcalf.alltrailshomework.viewmodel.RestaurantDetailViewModel
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.navArgs
+import com.benmedcalf.alltrailshomework.databinding.DetailFragmentBinding
+import com.benmedcalf.alltrailshomework.model.remote.placeDetails.PlaceDetailsResponse
+import com.benmedcalf.alltrailshomework.viewmodel.DetailsViewModel
 
 class DetailFragment : Fragment() {
-    private lateinit var viewModel: RestaurantDetailViewModel
-    // TODO: Should this be lateinit / not nullable?
-    private var placeId: String? = null
-    private var placeDetails: PlaceDetailsResponse? = null
+    private lateinit var viewModel: DetailsViewModel
+    private var _binding: DetailFragmentBinding? = null
+
+    // This property is only valid between onCreateView and onDestroyView.
+    private val binding get() = _binding!!
+    private val args: DetailFragmentArgs by navArgs()
+
+    //  TODO: need a local model of Place
+    private var place: PlaceDetailsResponse? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.restaurant_detail_fragment, container, false)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        viewModel = ViewModelProvider(this).get(RestaurantDetailViewModel::class.java)
-        // TODO: Uh, should I have placeId here on initial instantiation?
-        savedInstanceState?.let {
-            placeId = it.getString(ARG_PLACEID)
-        }
-        super.onCreate(savedInstanceState)
+        _binding = DetailFragmentBinding.inflate(layoutInflater, container, false)
+        val view = binding.root
+        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        // observe the response
-        viewModel.restaurantDetailsResponse.observe((viewLifecycleOwner), {
-            placeDetails = it
+        viewModel = ViewModelProvider(this).get(DetailsViewModel::class.java)
+        viewModel.loadRestaurantData(args.placeId)
+        viewModel.details.observe((viewLifecycleOwner), {
+            _binding?.textview?.text = it.result.name
+            _binding?.textview2?.text = it.result.rating.toString()
+            _binding?.textview3?.text = it.result.geometry.location.toString()
         })
         super.onViewCreated(view, savedInstanceState)
     }
 
-    companion object {
-        const val ARG_PLACEID = "place-id"
-
-        @JvmStatic
-        fun newInstance(placeId: String) =
-            ListResultsFragment().apply {
-                // Set fragment args
-                arguments = Bundle().apply {
-                    putString(ARG_PLACEID, placeId)
-                }
-            }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
+
