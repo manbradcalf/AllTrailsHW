@@ -51,7 +51,10 @@ object GooglePlacesService {
 
         // https://developers.google.com/maps/documentation/places/web-service/search
         @GET("nearbysearch/json")
-        suspend fun searchPlaces(@Query("radius") radius: Int): Response<NearbySearchResponse>
+        suspend fun searchPlaces(
+            @Query("radius") radius: Int,
+            @Query("location") location: String
+        ): Response<NearbySearchResponse>
 
         @GET("findplacefromtext/json")
         suspend fun searchByName(
