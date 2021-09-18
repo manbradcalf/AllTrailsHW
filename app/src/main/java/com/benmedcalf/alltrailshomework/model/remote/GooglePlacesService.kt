@@ -21,9 +21,7 @@ object GooglePlacesService {
         httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
 
         val client = okHttpBuilder
-            // For logging
             .addInterceptor(httpLoggingInterceptor)
-            // For adding key to every request as query param per maps docs
             .addInterceptor { chain ->
                 val request = chain.request().newBuilder()
                 val originalHttpUrl = chain.request().url
@@ -42,18 +40,17 @@ object GooglePlacesService {
     }
 
     interface PlacesAPI {
-        // https://developers.google.com/maps/documentation/places/web-service/details
         @GET("details/json")
         suspend fun getPlaceDetails(
             @Query("fields") fields: String,
             @Query("place_id") placeId: String
         ): Response<PlaceDetailsResponse>
 
-        // https://developers.google.com/maps/documentation/places/web-service/search
         @GET("nearbysearch/json")
         suspend fun searchPlaces(
             @Query("radius") radius: Int,
-            @Query("location") location: String
+            @Query("location") location: String,
+            @Query("type") type: String
         ): Response<NearbySearchResponse>
 
         @GET("findplacefromtext/json")
