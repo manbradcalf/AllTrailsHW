@@ -4,14 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import com.benmedcalf.alltrailshomework.databinding.DetailFragmentBinding
-import com.benmedcalf.alltrailshomework.model.remote.placeDetails.PlaceDetailsResponse
 import com.benmedcalf.alltrailshomework.viewmodel.DetailsViewModel
 
-class DetailFragment : Fragment() {
+class DetailFragment : BaseFragment() {
     private lateinit var viewModel: DetailsViewModel
     private var _binding: DetailFragmentBinding? = null
 
@@ -31,14 +29,18 @@ class DetailFragment : Fragment() {
         return view
     }
 
+    override fun setObservers() {
+        viewModel.details.observe((viewLifecycleOwner), { placeDetails ->
+            _binding?.textview?.text = placeDetails.result.name
+            _binding?.textview2?.text = placeDetails.result.rating.toString()
+            _binding?.textview3?.text = placeDetails.result.geometry.location.toString()
+        })
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewModel = ViewModelProvider(this).get(DetailsViewModel::class.java)
+        setObservers()
         viewModel.loadRestaurantData(args.placeId)
-        viewModel.details.observe((viewLifecycleOwner), {
-            _binding?.textview?.text = it.result.name
-            _binding?.textview2?.text = it.result.rating.toString()
-            _binding?.textview3?.text = it.result.geometry.location.toString()
-        })
         super.onViewCreated(view, savedInstanceState)
     }
 
