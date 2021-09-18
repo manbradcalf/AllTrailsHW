@@ -6,6 +6,10 @@
     app:startDestination="@id/mapResultsFragment">
 
     <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.benmedcalf.alltrailshomework.view.SearchFragment"/>
+
+    <fragment
         android:id="@+id/mapResultsFragment"
         android:name="com.benmedcalf.alltrailshomework.view.MapResultsFragment"
         android:label="fragment_maps"
@@ -31,6 +35,7 @@
         android:name="com.benmedcalf.alltrailshomework.view.ListResultsFragment"
         android:label="fragment_item_list"
         tools:layout="@layout/fragment_item_list" >
+
         <action
             android:id="@+id/action_listResultsFragment_to_detailFragment"
             app:destination="@id/detailFragment" />
