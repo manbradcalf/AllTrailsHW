@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import com.benmedcalf.alltrailshomework.databinding.DetailFragmentBinding
+import com.benmedcalf.alltrailshomework.model.remote.placeDetails.PlaceDetailsResponse
 import com.benmedcalf.alltrailshomework.viewmodel.DetailsViewModel
 
 class DetailFragment : BaseFragment() {
@@ -29,7 +30,7 @@ class DetailFragment : BaseFragment() {
         return view
     }
 
-    override fun setObservers() {
+    fun setObservers() {
         viewModel.details.observe((viewLifecycleOwner), { placeDetails ->
             _binding?.textview?.text = placeDetails.result.name
             _binding?.textview2?.text = placeDetails.result.rating.toString()
