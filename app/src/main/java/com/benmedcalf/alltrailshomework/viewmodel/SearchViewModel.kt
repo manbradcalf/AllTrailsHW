@@ -2,51 +2,32 @@ package com.benmedcalf.alltrailshomework.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.benmedcalf.alltrailshomework.model.PlacesRepository
 import com.benmedcalf.alltrailshomework.model.remote.GooglePlacesService
 import com.benmedcalf.alltrailshomework.model.remote.common.Result
-import com.google.android.gms.maps.CameraUpdate
-import com.google.android.gms.maps.model.LatLng
+import com.benmedcalf.alltrailshomework.model.remote.nearbySearch.SearchResponse
 import com.google.android.gms.maps.model.MarkerOptions
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class SearchViewModel : ViewModel() {
-    sealed class SearchResultType {
-        data class MapResult(
-            var result: Result? = null,
-            var markerOptions: MarkerOptions? = null,
-            var error: String? = null
-        ) :
-            SearchResultType()
-
-        data class ListResult(val result: Result?, val error: String) : SearchResultType()
-    }
-
-    companion object {
-        val defaultLatLng = LatLng(-34.0, 151.0)
-        const val defaultZoomLevel = 12.0f
-        const val defaultRadius = 50000
-    }
-
-    val mapCameraMovement: MutableLiveData<CameraUpdate> by lazy {
-        MutableLiveData<CameraUpdate>()
-    }
-
-    val currentLocationMarker: MutableLiveData<MarkerOptions> by lazy {
-        MutableLiveData<MarkerOptions>()
-    }
-
-    val mapResultsLiveData: MutableLiveData<List<SearchResultType.MapResult>> by lazy {
-        MutableLiveData<List<SearchResultType.MapResult>>()
-    }
-
+@HiltViewModel
+class SearchViewModel @Inject constructor(repository: PlacesRepository) : ViewModel() {
     val listResultLiveData: MutableLiveData<List<SearchResultType.ListResult>> by lazy {
         MutableLiveData<List<SearchResultType.ListResult>>()
     }
 
-    fun loadSearchResultsFor(
+    val searchResultFlow: Flow<SearchResponse> = flow {
+        emit(repository.loadSearchResultsFor(50000, "-34.0,151.0"))
+    }
+
+    fun updateSearchResultsFor(
         searchResultType: SearchResultType,
         radius: Int,
         latLng: String,
@@ -81,21 +62,25 @@ class SearchViewModel : ViewModel() {
     }
 
     private fun updateResultsForMap(searchResults: Collection<Result>) {
-        val tmpMapResults = mutableListOf<SearchResultType.MapResult>()
-        searchResults.forEach { place ->
-            val marker =
-                MarkerOptions()
-                    .position(
-                        LatLng(
-                            place.geometry.location.lat,
-                            place.geometry.location.lng
-                        )
-                    )
-                    .title(place.name)
 
-            tmpMapResults.add(SearchResultType.MapResult(place, marker))
-            mapResultsLiveData.postValue(tmpMapResults)
+    }
+
+    sealed class SearchResultType {
+        data class MapResult(
+            val result: SearchResponse,
+            val markerOptions: MarkerOptions
+        ) : SearchResultType()
+
+        data class ListResult(val result: Result) : SearchResultType()
+    }
+
+    class SearchViewModelFactory(private val repository: PlacesRepository) :
+        ViewModelProvider.Factory {
+        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(SearchViewModel::class.java)) {
+                return SearchViewModel(repository) as T
+            }
+            throw IllegalArgumentException("Unknown ViewModel Class")
         }
-
     }
 }
