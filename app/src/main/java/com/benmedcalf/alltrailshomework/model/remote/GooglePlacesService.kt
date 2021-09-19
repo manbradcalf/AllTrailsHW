@@ -1,7 +1,7 @@
 package com.benmedcalf.alltrailshomework.model.remote
 
 import com.benmedcalf.alltrailshomework.BuildConfig
-import com.benmedcalf.alltrailshomework.model.remote.nearbySearch.NearbySearchResponse
+import com.benmedcalf.alltrailshomework.model.remote.nearbySearch.SearchResponse
 import com.benmedcalf.alltrailshomework.model.remote.placeDetails.PlaceDetailsResponse
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -51,7 +51,7 @@ object GooglePlacesService {
             @Query("radius") radius: Int,
             @Query("location") location: String,
             @Query("type") type: String
-        ): Response<NearbySearchResponse>
+        ): Response<SearchResponse>
 
         @GET("findplacefromtext/json")
         suspend fun searchByName(
