@@ -63,17 +63,6 @@ class MapViewModel @Inject constructor(repository: PlacesRepository) : ViewModel
             currentLocationMarker.postValue(marker)
         }
     }
-
-    class MapViewModelFactory(private val repository: PlacesRepository) :
-        ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(MapViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return MapViewModel(repository) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel Class")
-        }
-    }
 }
 
 
