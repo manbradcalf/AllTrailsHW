@@ -1,5 +1,7 @@
 package com.benmedcalf.alltrailshomework.model.remote.common
 
+import com.google.gson.annotations.SerializedName
+
 data class Result(
     val businessStatus: String,
     val geometry: Geometry,
@@ -17,6 +19,7 @@ data class Result(
     val reference: String,
     val scope: String,
     val types: List<String>,
+    @SerializedName("user_ratings_total")
     val userRatingsTotal: Int,
     val vicinity: String
 )
