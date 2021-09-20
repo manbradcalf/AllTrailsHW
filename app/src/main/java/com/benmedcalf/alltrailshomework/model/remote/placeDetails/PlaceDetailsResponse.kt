@@ -5,6 +5,6 @@ import com.benmedcalf.alltrailshomework.model.remote.common.PlaceDetails
 
 data class PlaceDetailsResponse(
     val htmlAttributions: List<Any>,
-    val placeDetails: PlaceDetails,
+    val result: PlaceDetails,
     val status: String
 )
