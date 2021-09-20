@@ -4,7 +4,6 @@ import androidx.annotation.WorkerThread
 import com.benmedcalf.alltrailshomework.model.local.PlaceDao
 import com.benmedcalf.alltrailshomework.model.local.PlaceEntity
 import com.benmedcalf.alltrailshomework.model.remote.GooglePlacesService
-import com.benmedcalf.alltrailshomework.model.remote.nearbySearch.SearchResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
@@ -15,8 +14,8 @@ class PlacesRepository
 @Inject
 constructor(private val placeDao: PlaceDao) {
     private val _searchResponse =
-        MutableStateFlow<PlacesRepositoryResult>(PlacesRepositoryResult.Loading())
-    val searchResponseFlow: Flow<PlacesRepositoryResult> = _searchResponse
+        MutableStateFlow<Result>(Result.Loading())
+    val searchResponseFlow: Flow<Result> = _searchResponse
 
     // Room executes all queries on a separate thread.
     // Observed Flow will notify the observer when the data has changed.
@@ -37,12 +36,16 @@ constructor(private val placeDao: PlaceDao) {
             searchParameters.latLng,
             searchParameters.type,
             //TODO("make this properly nullable")
-            searchParameters.name?: ""
+            searchParameters.name ?: ""
         )
         if (response.isSuccessful) {
-            _searchResponse.value = PlacesRepositoryResult.Success(response.body()!!)
+            val restaurants = mutableListOf<Restaurant>()
+            response.body()?.results?.forEach { result ->
+                restaurants.add(result.toRestaurant())
+            }
+            _searchResponse.value = Result.Success(restaurants)
         } else {
-            _searchResponse.value = PlacesRepositoryResult.Failure(response.errorBody().toString())
+            _searchResponse.value = Result.Failure(response.errorBody().toString())
         }
     }
 
@@ -53,17 +56,16 @@ constructor(private val placeDao: PlaceDao) {
         val name: String? = null
     )
 
-    // TODO("should this params be nullable?")
-    sealed class PlacesRepositoryResult(
-        var value: SearchResponse? = null,
+    sealed class Result(
+        var value: List<Restaurant>? = null,
         var error: String? = null
     ) {
-        class Success(searchResponseBody: SearchResponse) :
-            PlacesRepositoryResult(value = searchResponseBody)
+        class Success(restaurants: List<Restaurant>) :
+            Result(value = restaurants)
 
         class Failure(searchResponseError: String) :
-            PlacesRepositoryResult(error = searchResponseError)
+            Result(error = searchResponseError)
 
-        class Loading : PlacesRepositoryResult()
+        class Loading : Result()
     }
 }

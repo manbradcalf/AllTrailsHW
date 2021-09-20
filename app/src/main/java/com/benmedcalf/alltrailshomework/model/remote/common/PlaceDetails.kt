@@ -1,5 +1,6 @@
 package com.benmedcalf.alltrailshomework.model.remote.common
 
+import com.benmedcalf.alltrailshomework.model.Restaurant
 import com.google.gson.annotations.SerializedName
 
 data class PlaceDetails(
@@ -22,5 +23,17 @@ data class PlaceDetails(
     val types: List<String>,
     @SerializedName("user_ratings_total")
     val userRatingsTotal: Int,
-    val vicinity: String
-)
+    val vicinity: String,
+) {
+    fun toRestaurant() = Restaurant(
+        //default value for is favorite
+        isFavorite = false,
+        name = this.name,
+        placeId = this.placeId,
+        geometry = this.geometry,
+        userRatingsTotal = this.userRatingsTotal,
+        rating = this.rating,
+        priceLevel = this.priceLevel,
+        photos = this.photos
+    )
+}

@@ -40,9 +40,9 @@ class MapViewModel @Inject constructor(private val repository: PlacesRepository)
     }
 }
 
-sealed class MapUIState(val result: PlacesRepository.PlacesRepositoryResult) {
-    class Loading() : MapUIState(PlacesRepository.PlacesRepositoryResult.Loading())
-    class Error(result: PlacesRepository.PlacesRepositoryResult.Failure) : MapUIState(result)
-    class Success(result: PlacesRepository.PlacesRepositoryResult.Success) : MapUIState(result)
+sealed class MapUIState(val value: List<Restaurant>? = null, val message: String? = null) {
+    class Loading : MapUIState(null, null)
+    class Success(restaurants: List<Restaurant>) : MapUIState(value = restaurants)
+    class Error(error: String) : MapUIState(message = error)
 }
 
