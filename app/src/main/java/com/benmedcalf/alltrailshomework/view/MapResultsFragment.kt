@@ -19,7 +19,6 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.benmedcalf.alltrailshomework.R
 import com.benmedcalf.alltrailshomework.databinding.FragmentMapsBinding
-import com.benmedcalf.alltrailshomework.model.PlacesRepository
 import com.benmedcalf.alltrailshomework.model.Restaurant
 import com.benmedcalf.alltrailshomework.viewmodel.MapUIState
 import com.benmedcalf.alltrailshomework.viewmodel.MapViewModel
@@ -79,11 +78,13 @@ class MapResultsFragment : BaseFragment() {
                         is MapUIState.Success -> {
                             mapUIState.value?.let { placeDetailsList ->
                                 // move camera to first results
-                                placeDetailsList[0].geometry.location.let { firstLocation ->
-                                    moveMapTo(LatLng(firstLocation.lat, firstLocation.lng))
+                                if (placeDetailsList.isNotEmpty()) {
+                                    placeDetailsList[0].geometry.location.let { firstLocation ->
+                                        moveMapTo(LatLng(firstLocation.lat, firstLocation.lng))
+                                    }
+                                    // add markers
+                                    renderMarkers(placeDetailsList)
                                 }
-                                // add markers
-                                renderMarkers(placeDetailsList)
                             }
                         }
                         is MapUIState.Loading -> {
@@ -179,6 +180,7 @@ class MapResultsFragment : BaseFragment() {
 
     //region Private Functions
     private fun renderMarkers(restaurants: List<Restaurant>) {
+        googleMap.clear()
         restaurants.forEach { restaurant ->
             val latLng =
                 LatLng(restaurant.geometry.location.lat, restaurant.geometry.location.lng)
@@ -209,13 +211,9 @@ class MapResultsFragment : BaseFragment() {
     private fun moveMapToCurrentLocation() {
         if (permissionGranted(ACCESS_FINE_LOCATION)) {
             fusedLocationClient.lastLocation.addOnSuccessListener { lastLocation ->
-                // get location
-                val currentLatLng = LatLng(lastLocation.latitude, lastLocation.longitude)
-                // update search
+                moveMapTo(LatLng(lastLocation.latitude, lastLocation.longitude))
                 viewLifecycleOwner.lifecycleScope.launch {
-                    val params =
-                        PlacesRepository.SearchParameters(latLng = "${currentLatLng.latitude},${currentLatLng.longitude}")
-                    searchViewModel.updateSearchResults(params)
+                    searchViewModel.updateSearchResults(latLng = "${lastLocation.latitude},${lastLocation.longitude}")
                 }
             }
         } else {

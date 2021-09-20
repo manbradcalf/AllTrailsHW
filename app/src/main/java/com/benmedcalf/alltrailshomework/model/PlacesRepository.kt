@@ -35,8 +35,7 @@ constructor(private val placeDao: PlaceDao) {
             searchParameters.radius,
             searchParameters.latLng,
             searchParameters.type,
-            //TODO("make this properly nullable")
-            searchParameters.name ?: ""
+            searchParameters.name
         )
         if (response.isSuccessful) {
             val restaurants = mutableListOf<Restaurant>()
@@ -49,11 +48,11 @@ constructor(private val placeDao: PlaceDao) {
         }
     }
 
-    data class SearchParameters(
-        val radius: Int = 50000,
-        val latLng: String = "-34.0,151.0",
-        val type: String = "restaurant",
-        val name: String? = null
+    class SearchParameters(
+        var radius: Int,
+        var latLng: String,
+        var type: String,
+        var name: String
     )
 
     sealed class Result(
