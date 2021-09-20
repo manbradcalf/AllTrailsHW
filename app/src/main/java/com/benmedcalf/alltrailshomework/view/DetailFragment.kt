@@ -35,15 +35,21 @@ class DetailFragment : Fragment(R.layout.detail_fragment) {
         return view
     }
 
+    // TODO(Three things: see below)
+    // Move this to Flow and
+    // Mutate PlaceDetails -> Restaurant
+    // Add favorite functionality
     private fun setObservers() {
         viewModel.details.observe((viewLifecycleOwner), { placeDetails ->
-            val rating = placeDetails.placeDetails.rating.toFloat()
-            val userRatings = "(${placeDetails.placeDetails.userRatingsTotal})"
-            val name = placeDetails.placeDetails.name
+            placeDetails?.result?.let { restaurant ->
+                val rating = restaurant.rating.toFloat()
+                val userRatings = "(${restaurant.userRatingsTotal})"
+                val name = restaurant.name
 
-            binding.detailTitle.text = name 
-            binding.detailRating.rating = rating
-            binding.detailRatingCount.text = userRatings
+                binding.detailTitle.text = name
+                binding.detailRating.rating = rating
+                binding.detailRatingCount.text = userRatings
+            }
         })
     }
 
@@ -60,4 +66,3 @@ class DetailFragment : Fragment(R.layout.detail_fragment) {
         _binding = null
     }
 }
-

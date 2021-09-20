@@ -20,7 +20,7 @@ import androidx.navigation.fragment.findNavController
 import com.benmedcalf.alltrailshomework.R
 import com.benmedcalf.alltrailshomework.databinding.FragmentMapsBinding
 import com.benmedcalf.alltrailshomework.model.PlacesRepository
-import com.benmedcalf.alltrailshomework.model.remote.common.PlaceDetails
+import com.benmedcalf.alltrailshomework.model.Restaurant
 import com.benmedcalf.alltrailshomework.viewmodel.MapUIState
 import com.benmedcalf.alltrailshomework.viewmodel.MapViewModel
 import com.benmedcalf.alltrailshomework.viewmodel.SearchViewModel
@@ -43,6 +43,7 @@ class MapResultsFragment : BaseFragment() {
     private lateinit var googleMap: GoogleMap
 
     data class MarkerInfo(
+        val isFavorite: Boolean,
         val placeId: String,
         val rating: Double,
         val ratingCount: Int,
@@ -76,7 +77,7 @@ class MapResultsFragment : BaseFragment() {
                 mapViewModel.uiState.collect { mapUIState ->
                     when (mapUIState) {
                         is MapUIState.Success -> {
-                            mapUIState.result.value?.placeDetails?.let { placeDetailsList ->
+                            mapUIState.value?.let { placeDetailsList ->
                                 // move camera to first results
                                 placeDetailsList[0].geometry.location.let { firstLocation ->
                                     moveMapTo(LatLng(firstLocation.lat, firstLocation.lng))
@@ -86,11 +87,11 @@ class MapResultsFragment : BaseFragment() {
                             }
                         }
                         is MapUIState.Loading -> {
-                            //TODO handle loading mapui
+                            //TODO handle loading map ui
                             Toast.makeText(requireContext(), "Loading!", Toast.LENGTH_SHORT).show()
                         }
                         is MapUIState.Error -> {
-                            //TODO handle error mapui
+                            //TODO handle error map ui
                             Toast.makeText(requireContext(), "Ooopsie!", Toast.LENGTH_SHORT).show()
                         }
                     }
@@ -165,6 +166,8 @@ class MapResultsFragment : BaseFragment() {
                 navController.navigate(action)
             }
             googleMap.setOnMarkerClickListener(onMarkerClickListener)
+
+            //TODO(Only call if this is the initial map load)
             moveMapToCurrentLocation()
         }
 
@@ -175,24 +178,21 @@ class MapResultsFragment : BaseFragment() {
     //endregion
 
     //region Private Functions
-    private fun renderMarkers(places: List<PlaceDetails>) {
-        places.forEach { place ->
+    private fun renderMarkers(restaurants: List<Restaurant>) {
+        restaurants.forEach { restaurant ->
             val latLng =
-                LatLng(place.geometry.location.lat, place.geometry.location.lng)
+                LatLng(restaurant.geometry.location.lat, restaurant.geometry.location.lng)
 
             val markerOptions = MarkerOptions().position(latLng)
             val marker = googleMap.addMarker(markerOptions)
 
-            var formattedPriceString = ""
-            repeat(place.priceLevel) {
-                formattedPriceString += "$"
-            }
-
+            var formattedPriceString = restaurant.formatPrice(restaurant.priceLevel)
             marker.tag = MarkerInfo(
-                place.placeId,
-                place.rating,
-                place.userRatingsTotal,
-                place.name,
+                restaurant.isFavorite,
+                restaurant.placeId,
+                restaurant.rating,
+                restaurant.userRatingsTotal,
+                restaurant.name,
                 formattedPriceString
             )
         }
@@ -211,9 +211,6 @@ class MapResultsFragment : BaseFragment() {
             fusedLocationClient.lastLocation.addOnSuccessListener { lastLocation ->
                 // get location
                 val currentLatLng = LatLng(lastLocation.latitude, lastLocation.longitude)
-                // move map
-                moveMapTo(currentLatLng)
-
                 // update search
                 viewLifecycleOwner.lifecycleScope.launch {
                     val params =

@@ -5,10 +5,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.benmedcalf.alltrailshomework.databinding.FragmentItemBinding
-import com.benmedcalf.alltrailshomework.model.remote.common.PlaceDetails
+import com.benmedcalf.alltrailshomework.model.Restaurant
 
 class PlacesRecyclerViewAdapter(
-    private val values: List<PlaceDetails>
+    private val values: List<Restaurant>
 ) : RecyclerView.Adapter<PlacesRecyclerViewAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

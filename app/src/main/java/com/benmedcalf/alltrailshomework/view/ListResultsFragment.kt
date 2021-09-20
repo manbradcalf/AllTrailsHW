@@ -11,7 +11,7 @@ import androidx.lifecycle.whenCreated
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.benmedcalf.alltrailshomework.R
 import com.benmedcalf.alltrailshomework.databinding.FragmentItemListBinding
-import com.benmedcalf.alltrailshomework.model.remote.common.PlaceDetails
+import com.benmedcalf.alltrailshomework.model.Restaurant
 import com.benmedcalf.alltrailshomework.viewmodel.ListUIState
 import com.benmedcalf.alltrailshomework.viewmodel.ListViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -23,7 +23,7 @@ class ListResultsFragment : Fragment(R.layout.fragment_item_list) {
     private var _binding: FragmentItemListBinding? = null
     private val binding get() = _binding!!
     private val listViewModel: ListViewModel by viewModels()
-    private var searchResults = arrayListOf<PlaceDetails>()
+    private var searchResults = arrayListOf<Restaurant>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,7 +50,7 @@ class ListResultsFragment : Fragment(R.layout.fragment_item_list) {
                 listViewModel.uiState.collect { listUiState ->
                     when (listUiState) {
                         is ListUIState.Success -> {
-                            renderResults(listUiState.placesRepositoryResult?.value!!.placeDetails)
+                            renderResults(listUiState.result?.value!!)
                         }
                         is ListUIState.Error -> {
                             TODO("implement list error state")
@@ -65,7 +65,7 @@ class ListResultsFragment : Fragment(R.layout.fragment_item_list) {
         }
     }
 
-    private fun renderResults(placeDetails: List<PlaceDetails>) {
+    private fun renderResults(placeDetails: List<Restaurant>) {
         searchResults.addAll(placeDetails)
         binding.list.adapter?.notifyDataSetChanged()
     }
