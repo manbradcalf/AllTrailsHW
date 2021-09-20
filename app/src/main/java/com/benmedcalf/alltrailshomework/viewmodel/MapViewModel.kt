@@ -21,18 +21,28 @@ class MapViewModel @Inject constructor(private val repository: PlacesRepository)
     init {
         viewModelScope.launch {
             repository.searchResponseFlow.collect {
-                val newState = MapUIState.Success(it)
-                _uiState.value = newState
+                when (it) {
+                    is PlacesRepository.PlacesRepositoryResult.Success -> {
+                        val newState = MapUIState.Success(it)
+                        _uiState.value = newState
+                    }
+                    is PlacesRepository.PlacesRepositoryResult.Failure -> {
+                        val errorState = MapUIState.Error(it)
+                        _uiState.value = errorState
+                    }
+                    is PlacesRepository.PlacesRepositoryResult.Failure -> {
+                        val loadingState = MapUIState.Loading()
+                        _uiState.value = loadingState
+                    }
+                }
             }
         }
     }
 }
 
-
-sealed class MapUIState(val placesRepositoryResult: PlacesRepository.PlacesRepositoryResult?) {
-    class Loading : MapUIState(null)
-    class Error : MapUIState(null)
-    class Success(private val response: PlacesRepository.PlacesRepositoryResult) :
-        MapUIState(response)
+sealed class MapUIState(val result: PlacesRepository.PlacesRepositoryResult) {
+    class Loading() : MapUIState(PlacesRepository.PlacesRepositoryResult.Loading())
+    class Error(result: PlacesRepository.PlacesRepositoryResult.Failure) : MapUIState(result)
+    class Success(result: PlacesRepository.PlacesRepositoryResult.Success) : MapUIState(result)
 }
 

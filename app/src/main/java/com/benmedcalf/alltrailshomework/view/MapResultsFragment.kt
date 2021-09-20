@@ -1,14 +1,15 @@
 package com.benmedcalf.alltrailshomework.view
 
 import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RatingBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.fragment.app.viewModels
@@ -19,7 +20,8 @@ import androidx.navigation.fragment.findNavController
 import com.benmedcalf.alltrailshomework.R
 import com.benmedcalf.alltrailshomework.databinding.FragmentMapsBinding
 import com.benmedcalf.alltrailshomework.model.PlacesRepository
-import com.benmedcalf.alltrailshomework.model.remote.common.Result
+import com.benmedcalf.alltrailshomework.model.remote.common.PlaceDetails
+import com.benmedcalf.alltrailshomework.viewmodel.MapUIState
 import com.benmedcalf.alltrailshomework.viewmodel.MapViewModel
 import com.benmedcalf.alltrailshomework.viewmodel.SearchViewModel
 import com.google.android.gms.maps.*
@@ -32,15 +34,23 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MapResultsFragment : BaseFragment() {
-    private val mapViewModel: MapViewModel by viewModels()
     private val searchViewModel: SearchViewModel by viewModels()
-    private lateinit var googleMap: GoogleMap
-    private lateinit var navController: NavController
+    private val mapViewModel: MapViewModel by viewModels()
+    private val defaultZoomLevel = 12.0f
     private var _binding: FragmentMapsBinding? = null
     private val binding get() = _binding!!
-    private var currentLocation: Location? = null
+    private lateinit var navController: NavController
+    private lateinit var googleMap: GoogleMap
 
-    //region Fragment Lifecycle and BaseFragment Impl
+    data class MarkerInfo(
+        val placeId: String,
+        val rating: Double,
+        val ratingCount: Int,
+        val title: String,
+        val price: String
+    )
+
+    //region Fragment Lifecycle
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -57,61 +67,59 @@ class MapResultsFragment : BaseFragment() {
         navController = findNavController()
         mapFragment?.getMapAsync(mapReadyCallback)
 
-        if (savedInstanceState == null) {
-            checkLocationPermissions()
-        }
         // In the lifecycle coroutine scope
         viewLifecycleOwner.lifecycleScope.launch {
             // When we create fragment
             viewLifecycleOwner.lifecycle.whenCreated {
                 // get and subscribe to the UI state
+
                 mapViewModel.uiState.collect { mapUIState ->
-                    mapUIState.placesRepositoryResult?.value?.results?.forEach { renderMarker(it) }
+                    when (mapUIState) {
+                        is MapUIState.Success -> {
+                            mapUIState.result.value?.placeDetails?.let { placeDetailsList ->
+                                // move camera to first results
+                                placeDetailsList[0].geometry.location.let { firstLocation ->
+                                    moveMapTo(LatLng(firstLocation.lat, firstLocation.lng))
+                                }
+                                // add markers
+                                renderMarkers(placeDetailsList)
+                            }
+                        }
+                        is MapUIState.Loading -> {
+                            //TODO handle loading mapui
+                            Toast.makeText(requireContext(), "Loading!", Toast.LENGTH_SHORT).show()
+                        }
+                        is MapUIState.Error -> {
+                            //TODO handle error mapui
+                            Toast.makeText(requireContext(), "Ooopsie!", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
                 }
             }
-        }
-
-        //TODO: How to make this a toggle button accessible by both list and map
-        binding.goToListButton.setOnClickListener {
-            val action =
-                MapResultsFragmentDirections.actionMapResultsFragmentToListResultsFragment()
-            navController.navigate(action)
+            //TODO: How to make this a toggle button accessible by both list and map
+            binding.goToListButton.setOnClickListener {
+                val action =
+                    MapResultsFragmentDirections.actionMapResultsFragmentToListResultsFragment()
+                navController.navigate(action)
+            }
         }
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
+    //endregion
 
-    private fun renderMarker(place: Result) {
-        val latLng =
-            LatLng(place.geometry.location.lat, place.geometry.location.lng)
-
-        val markerOptions = MarkerOptions().position(latLng)
-        val marker = googleMap.addMarker(markerOptions)
-
-        var formattedPriceString = ""
-        repeat(place.priceLevel) {
-            formattedPriceString += "$"
-        }
-
-        marker.tag = MarkerInfo(
-            place.placeId,
-            place.rating,
-            place.userRatingsTotal,
-            place.name,
-            formattedPriceString
-        )
-    }
-
+    //region Map and Location Callbacks
     private val requestPermissionLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { isGranted: Boolean ->
             if (isGranted) {
-                // TODO("We need to ping the location on first launch to trigger the fused Location callback")
-                // No need for action, as we've registered a callback on the fusedLocationListener
+                moveMapToCurrentLocation()
             } else {
                 if (shouldShowRequestPermissionRationale(ACCESS_FINE_LOCATION)) {
                     // TODO("beg for permission")
@@ -148,49 +156,69 @@ class MapResultsFragment : BaseFragment() {
                     return customView
                 }
             })
-            checkLocationPermissions()
             googleMap.setOnInfoWindowClickListener { marker ->
                 val markerInfo = marker.tag as MarkerInfo
                 val action =
-                    MapResultsFragmentDirections.actionMapResultsFragmentToDetailFragment(markerInfo.placeId)
+                    MapResultsFragmentDirections.actionMapResultsFragmentToDetailFragment(
+                        markerInfo.placeId
+                    )
                 navController.navigate(action)
             }
+            googleMap.setOnMarkerClickListener(onMarkerClickListener)
+            moveMapToCurrentLocation()
         }
 
     private val onMarkerClickListener = GoogleMap.OnMarkerClickListener { marker ->
         marker.showInfoWindow()
         return@OnMarkerClickListener false
     }
+    //endregion
 
+    //region Private Functions
+    private fun renderMarkers(places: List<PlaceDetails>) {
+        places.forEach { place ->
+            val latLng =
+                LatLng(place.geometry.location.lat, place.geometry.location.lng)
 
-    //TODO("this function just looks ugly")
-    private fun checkLocationPermissions() {
-        if (checkSelfPermission(
-                requireContext(),
-                ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
+            val markerOptions = MarkerOptions().position(latLng)
+            val marker = googleMap.addMarker(markerOptions)
+
+            var formattedPriceString = ""
+            repeat(place.priceLevel) {
+                formattedPriceString += "$"
+            }
+
+            marker.tag = MarkerInfo(
+                place.placeId,
+                place.rating,
+                place.userRatingsTotal,
+                place.name,
+                formattedPriceString
+            )
+        }
+    }
+
+    private fun permissionGranted(permission: String): Boolean {
+        return checkSelfPermission(
+            requireContext(),
+            permission
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun moveMapToCurrentLocation() {
+        if (permissionGranted(ACCESS_FINE_LOCATION)) {
             fusedLocationClient.lastLocation.addOnSuccessListener { lastLocation ->
-                if (lastLocation != currentLocation) {
-                    if (currentLocation == null) {
-                        currentLocation = lastLocation
-                    }
-                    // only move camera if the location is updated
-                    googleMap.moveCamera(
-                        CameraUpdateFactory.newLatLngZoom(
-                            LatLng(
-                                lastLocation.latitude,
-                                lastLocation.longitude
-                            ), 12.0f
-                        )
-                    )
-                    val params =
-                        PlacesRepository.SearchParameters(latLng = "${lastLocation.latitude},${lastLocation.longitude}")
+                // get location
+                val currentLatLng = LatLng(lastLocation.latitude, lastLocation.longitude)
+                // move map
+                moveMapTo(currentLatLng)
 
-                    //TODO("This feels risky")
-                    viewLifecycleOwner.lifecycleScope.launch {
-                        searchViewModel.updateSearchResults(params)
-                    }
+                // update search
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val params =
+                        PlacesRepository.SearchParameters(latLng = "${currentLatLng.latitude},${currentLatLng.longitude}")
+                    searchViewModel.updateSearchResults(params)
                 }
             }
         } else {
@@ -198,11 +226,8 @@ class MapResultsFragment : BaseFragment() {
         }
     }
 
-    data class MarkerInfo(
-        val placeId: String,
-        val rating: Double,
-        val ratingCount: Int,
-        val title: String,
-        val price: String
-    )
+    private fun moveMapTo(latLng: LatLng) {
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, defaultZoomLevel))
+    }
+    //endregion
 }
