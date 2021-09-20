@@ -12,6 +12,7 @@ data class Result(
     val openingHours: OpeningHours,
     val permanentlyClosed: Boolean,
     val photos: List<Photo>,
+    @SerializedName("place_id")
     val placeId: String,
     val plusCode: PlusCode,
     val priceLevel: Int,

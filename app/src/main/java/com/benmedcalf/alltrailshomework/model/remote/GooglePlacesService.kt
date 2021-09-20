@@ -50,7 +50,8 @@ object GooglePlacesService {
         suspend fun searchPlaces(
             @Query("radius") radius: Int,
             @Query("location") location: String,
-            @Query("type") type: String
+            @Query("type") type: String,
+            @Query("name") name: String
         ): Response<SearchResponse>
 
         @GET("findplacefromtext/json")

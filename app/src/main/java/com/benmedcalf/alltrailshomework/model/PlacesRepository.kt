@@ -5,9 +5,8 @@ import com.benmedcalf.alltrailshomework.model.local.PlaceDao
 import com.benmedcalf.alltrailshomework.model.local.PlaceEntity
 import com.benmedcalf.alltrailshomework.model.remote.GooglePlacesService
 import com.benmedcalf.alltrailshomework.model.remote.nearbySearch.SearchResponse
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -15,10 +14,9 @@ import javax.inject.Singleton
 class PlacesRepository
 @Inject
 constructor(private val placeDao: PlaceDao) {
-    private val searchResponse: SearchResponse? = null
-    val searchResponseFlow: Flow<SearchResponse> = flow {
-        emit(loadSearchResultsFor(50000, "-34.0, 151.0"))
-    }
+    private val _searchResponse =
+        MutableStateFlow<PlacesRepositoryResult>(PlacesRepositoryResult.Loading())
+    val searchResponseFlow: Flow<PlacesRepositoryResult> = _searchResponse
 
     // Room executes all queries on a separate thread.
     // Observed Flow will notify the observer when the data has changed.
@@ -33,12 +31,39 @@ constructor(private val placeDao: PlaceDao) {
         placeDao.insertPlace(placeEntity)
     }
 
-    suspend fun loadSearchResultsFor(
-        radius: Int,
-        latLng: String,
-        type: String = "restaurant"
-    ): SearchResponse {
-        //TODO("handle error logic etc")
-        return GooglePlacesService.instance.searchPlaces(radius, latLng, type).body()!!
+    suspend fun loadSearchResultsFor(searchParameters: SearchParameters) {
+        val response = GooglePlacesService.instance.searchPlaces(
+            searchParameters.radius,
+            searchParameters.latLng,
+            searchParameters.type,
+            //TODO("make this properly nullable")
+            searchParameters.name?: ""
+        )
+        if (response.isSuccessful) {
+            _searchResponse.value = PlacesRepositoryResult.Success(response.body()!!)
+        } else {
+            _searchResponse.value = PlacesRepositoryResult.Failure(response.errorBody().toString())
+        }
+    }
+
+    data class SearchParameters(
+        val radius: Int = 50000,
+        val latLng: String = "-34.0,151.0",
+        val type: String = "restaurant",
+        val name: String? = null
+    )
+
+    // TODO("should this params be nullable?")
+    sealed class PlacesRepositoryResult(
+        var value: SearchResponse? = null,
+        var error: String? = null
+    ) {
+        class Success(searchResponseBody: SearchResponse) :
+            PlacesRepositoryResult(value = searchResponseBody)
+
+        class Failure(searchResponseError: String) :
+            PlacesRepositoryResult(error = searchResponseError)
+
+        class Loading : PlacesRepositoryResult()
     }
 }

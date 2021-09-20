@@ -14,11 +14,6 @@ import com.benmedcalf.alltrailshomework.view.placeholder.PlaceholderContent
  * A fragment representing a list of Items.
  */
 class ListResultsFragment : Fragment() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -32,6 +27,7 @@ class ListResultsFragment : Fragment() {
                 adapter = PlacesRecyclerViewAdapter(PlaceholderContent.ITEMS)
             }
         }
+
         return view
     }
 }

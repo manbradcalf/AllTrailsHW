@@ -4,14 +4,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.benmedcalf.alltrailshomework.R
 import com.benmedcalf.alltrailshomework.databinding.DetailFragmentBinding
 import com.benmedcalf.alltrailshomework.model.remote.placeDetails.PlaceDetailsResponse
 import com.benmedcalf.alltrailshomework.viewmodel.DetailsViewModel
 
-class DetailFragment : BaseFragment() {
+class DetailFragment : Fragment(R.layout.detail_fragment) {
     private lateinit var viewModel: DetailsViewModel
+    private lateinit var navController: NavController
     private var _binding: DetailFragmentBinding? = null
 
     // This property is only valid between onCreateView and onDestroyView.
@@ -30,7 +35,7 @@ class DetailFragment : BaseFragment() {
         return view
     }
 
-    fun setObservers() {
+    private fun setObservers() {
         viewModel.details.observe((viewLifecycleOwner), { placeDetails ->
             _binding?.textview?.text = placeDetails.result.name
             _binding?.textview2?.text = placeDetails.result.rating.toString()
@@ -40,6 +45,7 @@ class DetailFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewModel = ViewModelProvider(this).get(DetailsViewModel::class.java)
+        navController = findNavController()
         setObservers()
         viewModel.loadRestaurantData(args.placeId)
         super.onViewCreated(view, savedInstanceState)
