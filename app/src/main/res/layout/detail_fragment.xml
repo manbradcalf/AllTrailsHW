@@ -1,32 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     tools:context=".view.DetailFragment">
 
-    <androidx.appcompat.widget.LinearLayoutCompat
-        android:layout_width="match_parent"
+    <ImageView
+        android:id="@+id/detail_image"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/textview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="Hello" />
+    <TextView
+        android:id="@+id/detail_title"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="Hello"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/detail_image" />
 
-        <TextView
-            android:id="@+id/textview2"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="Hello" />
+    <RatingBar
+        android:id="@+id/detail_rating"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="4dp"
+        android:isIndicator="true"
+        android:numStars="5"
+        android:rating="4"
+        android:stepSize="0.1"
+        android:text="Hello"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/detail_title" />
 
-        <TextView
-            android:id="@+id/textview3"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="Hello" />
-    </androidx.appcompat.widget.LinearLayoutCompat>
-
-</FrameLayout>
+    <TextView
+        android:id="@+id/detail_rating_count"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="Hello"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/detail_rating" />
+</androidx.constraintlayout.widget.ConstraintLayout>
