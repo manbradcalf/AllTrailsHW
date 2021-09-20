@@ -1,19 +1,15 @@
 package com.benmedcalf.alltrailshomework.view
 
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.navigation.NavController
+import androidx.recyclerview.widget.RecyclerView
 import com.benmedcalf.alltrailshomework.databinding.FragmentItemBinding
+import com.benmedcalf.alltrailshomework.model.remote.common.Result
 
-import com.benmedcalf.alltrailshomework.view.placeholder.PlaceholderContent.PlaceholderItem
-
-/**
- * [RecyclerView.Adapter] that can display a [PlaceholderItem].
- * TODO: Replace the implementation with code for your data type.
- */
 class PlacesRecyclerViewAdapter(
-    private val values: List<PlaceholderItem>
+    private val values: List<Result>
 ) : RecyclerView.Adapter<PlacesRecyclerViewAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -25,13 +21,15 @@ class PlacesRecyclerViewAdapter(
                 false
             )
         )
-
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = values[position]
-        holder.idView.text = item.id
-        holder.contentView.text = item.content
+        holder.idView.text = item.rating.toString()
+        holder.contentView.text = item.name
+
+        //TODO("Navigate to detail")
+        // holder.idView.setOnClickListener { }
     }
 
     override fun getItemCount(): Int = values.size
@@ -39,10 +37,8 @@ class PlacesRecyclerViewAdapter(
     inner class ViewHolder(binding: FragmentItemBinding) : RecyclerView.ViewHolder(binding.root) {
         val idView: TextView = binding.itemNumber
         val contentView: TextView = binding.content
-
         override fun toString(): String {
             return super.toString() + " '" + contentView.text + "'"
         }
     }
-
 }
