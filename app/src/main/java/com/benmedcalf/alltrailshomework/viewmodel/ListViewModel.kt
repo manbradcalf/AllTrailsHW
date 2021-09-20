@@ -28,8 +28,8 @@ class ListViewModel @Inject constructor(private val repository: PlacesRepository
     }
 }
 
-sealed class ListUIState(val placesRepositoryResult: PlacesRepository.PlacesRepositoryResult?) {
+sealed class ListUIState(val result: PlacesRepository.Result?) {
     class Loading : ListUIState(null)
     class Error : ListUIState(null)
-    class Success(private val response: PlacesRepository.PlacesRepositoryResult) : ListUIState(response)
+    class Success(private val response: PlacesRepository.Result) : ListUIState(response)
 }

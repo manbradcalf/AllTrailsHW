@@ -3,6 +3,7 @@ package com.benmedcalf.alltrailshomework.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.benmedcalf.alltrailshomework.model.PlacesRepository
+import com.benmedcalf.alltrailshomework.model.Restaurant
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -22,15 +23,19 @@ class MapViewModel @Inject constructor(private val repository: PlacesRepository)
         viewModelScope.launch {
             repository.searchResponseFlow.collect {
                 when (it) {
-                    is PlacesRepository.PlacesRepositoryResult.Success -> {
-                        val newState = MapUIState.Success(it)
-                        _uiState.value = newState
+                    is PlacesRepository.Result.Success -> {
+                        it.value?.let {
+                            val newState = MapUIState.Success(restaurants = it)
+                            _uiState.value = newState
+                        }
                     }
-                    is PlacesRepository.PlacesRepositoryResult.Failure -> {
-                        val errorState = MapUIState.Error(it)
-                        _uiState.value = errorState
+                    is PlacesRepository.Result.Failure -> {
+                        it.value?.let {
+                            val errorState = MapUIState.Error(error = "Oops, an error occurred")
+                            _uiState.value = errorState
+                        }
                     }
-                    is PlacesRepository.PlacesRepositoryResult.Failure -> {
+                    is PlacesRepository.Result.Loading -> {
                         val loadingState = MapUIState.Loading()
                         _uiState.value = loadingState
                     }
