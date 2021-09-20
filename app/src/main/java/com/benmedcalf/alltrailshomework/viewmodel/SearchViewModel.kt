@@ -10,4 +10,8 @@ class SearchViewModel @Inject constructor(private val repository: PlacesReposito
     suspend fun updateSearchResults(params: PlacesRepository.SearchParameters) {
         repository.loadSearchResultsFor(params)
     }
+
+    fun filterSearchResults() {
+        //TODO("implement")
+    }
 }
