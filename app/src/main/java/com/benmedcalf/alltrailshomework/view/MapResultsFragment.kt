@@ -72,7 +72,7 @@ class MapResultsFragment : BaseFragment() {
         }
 
         //TODO: How to make this a toggle button accessible by both list and map
-        binding.mapbtn.setOnClickListener {
+        binding.goToListButton.setOnClickListener {
             val action =
                 MapResultsFragmentDirections.actionMapResultsFragmentToListResultsFragment()
             navController.navigate(action)
@@ -110,6 +110,7 @@ class MapResultsFragment : BaseFragment() {
             ActivityResultContracts.RequestPermission()
         ) { isGranted: Boolean ->
             if (isGranted) {
+                // TODO("We need to ping the location on first launch to trigger the fused Location callback")
                 // No need for action, as we've registered a callback on the fusedLocationListener
             } else {
                 if (shouldShowRequestPermissionRationale(ACCESS_FINE_LOCATION)) {
