@@ -2,7 +2,7 @@ package com.benmedcalf.alltrailshomework.model.remote.common
 
 import com.google.gson.annotations.SerializedName
 
-data class Result(
+data class PlaceDetails(
     val businessStatus: String,
     val geometry: Geometry,
     val icon: String,

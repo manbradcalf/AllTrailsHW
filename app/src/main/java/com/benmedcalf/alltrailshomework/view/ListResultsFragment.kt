@@ -12,7 +12,8 @@ import androidx.lifecycle.whenCreated
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.benmedcalf.alltrailshomework.R
 import com.benmedcalf.alltrailshomework.databinding.FragmentItemListBinding
-import com.benmedcalf.alltrailshomework.model.remote.common.Result
+import com.benmedcalf.alltrailshomework.model.remote.common.PlaceDetails
+import com.benmedcalf.alltrailshomework.viewmodel.ListUIState
 import com.benmedcalf.alltrailshomework.viewmodel.ListViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
@@ -23,7 +24,7 @@ class ListResultsFragment : Fragment(R.layout.fragment_item_list) {
     private var _binding: FragmentItemListBinding? = null
     private val binding get() = _binding!!
     private val listViewModel: ListViewModel by viewModels()
-    private var searchResults = arrayListOf<Result>()
+    private var searchResults = arrayListOf<PlaceDetails>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -54,15 +55,8 @@ class ListResultsFragment : Fragment(R.layout.fragment_item_list) {
         }
     }
 
-    private fun renderResults(results: List<Result>) {
-        Toast.makeText(
-            requireContext(),
-            "first result is ${results[0].name}",
-            Toast.LENGTH_SHORT
-        ).show()
-
-        searchResults.addAll(results)
+    private fun renderResults(placeDetails: List<PlaceDetails>) {
+        searchResults.addAll(placeDetails)
         binding.list.adapter?.notifyDataSetChanged()
-
     }
 }

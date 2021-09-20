@@ -1,11 +1,10 @@
 package com.benmedcalf.alltrailshomework.model.remote.placeDetails
 
 
-import com.benmedcalf.alltrailshomework.model.remote.common.Result
-import com.google.gson.annotations.SerializedName
+import com.benmedcalf.alltrailshomework.model.remote.common.PlaceDetails
 
 data class PlaceDetailsResponse(
     val htmlAttributions: List<Any>,
-    val result: Result,
+    val placeDetails: PlaceDetails,
     val status: String
 )

@@ -3,13 +3,12 @@ package com.benmedcalf.alltrailshomework.view
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.benmedcalf.alltrailshomework.databinding.FragmentItemBinding
-import com.benmedcalf.alltrailshomework.model.remote.common.Result
+import com.benmedcalf.alltrailshomework.model.remote.common.PlaceDetails
 
 class PlacesRecyclerViewAdapter(
-    private val values: List<Result>
+    private val values: List<PlaceDetails>
 ) : RecyclerView.Adapter<PlacesRecyclerViewAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

@@ -37,11 +37,11 @@ class DetailFragment : Fragment(R.layout.detail_fragment) {
 
     private fun setObservers() {
         viewModel.details.observe((viewLifecycleOwner), { placeDetails ->
-            val rating = placeDetails.result.rating.toFloat()
-            val userRatings = "(${placeDetails.result.userRatingsTotal})"
-            val name = placeDetails.result.name
+            val rating = placeDetails.placeDetails.rating.toFloat()
+            val userRatings = "(${placeDetails.placeDetails.userRatingsTotal})"
+            val name = placeDetails.placeDetails.name
 
-            binding.detailTitle.text = name
+            binding.detailTitle.text = name 
             binding.detailRating.rating = rating
             binding.detailRatingCount.text = userRatings
         })
