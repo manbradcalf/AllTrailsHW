@@ -14,11 +14,9 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.benmedcalf.alltrailshomework.R
 import com.benmedcalf.alltrailshomework.databinding.FragmentMapsBinding
-import com.benmedcalf.alltrailshomework.model.Restaurant
 import com.benmedcalf.alltrailshomework.viewmodel.MapUIState
 import com.benmedcalf.alltrailshomework.viewmodel.MapViewModel
 import com.google.android.gms.maps.*
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import dagger.hilt.android.AndroidEntryPoint
@@ -67,8 +65,8 @@ class MapResultsFragment : BaseFragment() {
                 mapViewModel.uiState.collect { mapUIState ->
                     when (mapUIState) {
                         is MapUIState.Success -> {
-                            if (mapUIState.value.isNotEmpty()) {
-                                renderMapWithResults(mapUIState.value, mapUIState.cameraMovement)
+                            mapUIState.data?.let { screen ->
+                                renderMapWithResults(screen.cameraMovement, screen.markers)
                             }
                         }
                         //TODO("this doesnt know when search viewmodel is loading...")
@@ -153,26 +151,17 @@ class MapResultsFragment : BaseFragment() {
 
     //region Private Functions
     private fun renderMapWithResults(
-        restaurants: List<Restaurant>,
-        cameraMovement: CameraUpdate?
+        cameraMovement: CameraUpdate?,
+        markers: List<Pair<MarkerOptions, MarkerInfo>>,
     ) {
         googleMap.clear()
         cameraMovement?.let { googleMap.moveCamera(it) }
-        restaurants.forEach { restaurant ->
-            val latLng =
-                LatLng(restaurant.geometry.location.lat, restaurant.geometry.location.lng)
-            val markerOptions = MarkerOptions().position(latLng)
+        markers.forEach { optionsAndInfo ->
+            val markerOptions = optionsAndInfo.first
+            val markerInfo = optionsAndInfo.second
+
             val marker = googleMap.addMarker(markerOptions)
-            val formattedPriceString = restaurant.formatPrice(restaurant.priceLevel)
-            val formattedRatingsCount = "(${restaurant.userRatingsTotal})"
-            marker.tag = MarkerInfo(
-                restaurant.isFavorite,
-                restaurant.placeId,
-                restaurant.rating,
-                formattedRatingsCount,
-                restaurant.name,
-                formattedPriceString
-            )
+            marker.tag = markerInfo
         }
     }
 //endregion

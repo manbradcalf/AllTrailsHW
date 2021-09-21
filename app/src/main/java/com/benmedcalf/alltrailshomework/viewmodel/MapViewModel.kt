@@ -4,8 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.benmedcalf.alltrailshomework.model.PlacesRepository
 import com.benmedcalf.alltrailshomework.model.Restaurant
+import com.benmedcalf.alltrailshomework.view.MapResultsFragment
 import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -26,13 +29,41 @@ class MapViewModel @Inject constructor(private val repository: PlacesRepository)
             repository.searchResponseFlow.collect {
                 when (it) {
                     is PlacesRepository.Result.Success -> {
-                        it.value?.let { restaurants ->
-                            val newLocation =
+                        it.value?.let { results ->
+                            val cameraUpdate =
                                 CameraUpdateFactory.newLatLngZoom(repository.userLocation, 12.0f)
-                            val newState = MapUIState.Success(
-                                restaurants = restaurants,
-                                cameraMovement = newLocation
+
+                            var markers =
+                                mutableListOf<Pair<MarkerOptions, MapResultsFragment.MarkerInfo>>()
+
+                            results.forEach { result ->
+                                val latLng =
+                                    LatLng(
+                                        result.geometry.location.lat, result.geometry.location.lng
+                                    )
+
+                                val formattedPriceString =
+                                    result.formatPrice(result.priceLevel)
+                                val formattedRatingsCount = "(${result.userRatingsTotal})"
+
+                                val markersOptions =
+                                    MarkerOptions().position(latLng).title(result.name)
+                                val markerInfo = MapResultsFragment.MarkerInfo(
+                                    result.isFavorite,
+                                    result.placeId,
+                                    result.rating,
+                                    formattedRatingsCount,
+                                    result.name,
+                                    formattedPriceString
+                                )
+                                markers.add(Pair(markersOptions, markerInfo))
+                            }
+
+                            val screen = Screen(
+                                cameraMovement = cameraUpdate,
+                                markers = markers.toList()
                             )
+                            val newState = MapUIState.Success(screen)
                             _uiState.value = newState
                         }
                     }
@@ -53,15 +84,20 @@ class MapViewModel @Inject constructor(private val repository: PlacesRepository)
     }
 }
 
+
+data class Screen(
+    val cameraMovement: CameraUpdate,
+    val markers: List<Pair<MarkerOptions, MapResultsFragment.MarkerInfo>>
+)
+
 sealed class MapUIState(
-    val value: List<Restaurant>,
-    val cameraMovement: CameraUpdate? = null,
+    val data: Screen? = null,
     val message: String? = null
 ) {
-    class Loading : MapUIState(emptyList(), null)
-    class Success(restaurants: List<Restaurant>, cameraMovement: CameraUpdate) :
-        MapUIState(value = restaurants, cameraMovement = cameraMovement)
+    class Loading : MapUIState(null, null)
+    class Success(screen: Screen) :
+        MapUIState(screen)
 
-    class Error(error: String) : MapUIState(emptyList(), message = error)
+    class Error(error: String) : MapUIState(message = error)
 }
 
