@@ -15,6 +15,7 @@ import com.benmedcalf.alltrailshomework.model.PlacesRepository
 import com.benmedcalf.alltrailshomework.viewmodel.MainViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -35,7 +36,8 @@ class MainActivity : AppCompatActivity() {
         ) { isGranted: Boolean ->
             if (isGranted) {
                 fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                    repo.userLocation = location
+                    // Set user location in repo for access in viewmodel layer later
+                    repo.userLocation = LatLng(location.latitude, location.longitude)
                     lifecycleScope.launch {
                         mainViewModel.updateSearchResults("")
                     }

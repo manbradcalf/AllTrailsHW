@@ -43,7 +43,7 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
         binding.searchBox.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 viewLifecycleOwner.lifecycleScope.launch {
-                    mainViewModel.updateSearchResults(query ?: "")
+                    mainViewModel.updateSearchResults(query ?:"")
                 }
                 return false
             }

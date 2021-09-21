@@ -1,6 +1,5 @@
 package com.benmedcalf.alltrailshomework.viewmodel
 
-import android.location.Location
 import androidx.lifecycle.ViewModel
 import com.benmedcalf.alltrailshomework.model.PlacesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel

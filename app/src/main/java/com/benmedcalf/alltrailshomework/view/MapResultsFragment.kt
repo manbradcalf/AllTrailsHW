@@ -1,7 +1,5 @@
 package com.benmedcalf.alltrailshomework.view
 
-import android.Manifest.permission.ACCESS_FINE_LOCATION
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.RatingBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.whenCreated
@@ -70,18 +67,11 @@ class MapResultsFragment : BaseFragment() {
                 mapViewModel.uiState.collect { mapUIState ->
                     when (mapUIState) {
                         is MapUIState.Success -> {
-                            if (mapUIState.value == null) {
-                                Toast.makeText(
-                                    requireContext(),
-                                    "Search yielded no results",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            } else {
-                                if (mapUIState.value.isNotEmpty()) {
-                                    renderMarkers(mapUIState.value)
-                                }
+                            if (mapUIState.value.isNotEmpty()) {
+                                renderMapWithResults(mapUIState.value, mapUIState.cameraMovement)
                             }
                         }
+                        //TODO("this doesnt know when search viewmodel is loading...")
                         is MapUIState.Loading -> {
                             binding.loadingIndicator.visibility = View.VISIBLE
 
@@ -95,11 +85,11 @@ class MapResultsFragment : BaseFragment() {
                 }
             }
             //TODO: How to make this a toggle button accessible by both list and map
-            binding.goToListButton.setOnClickListener {
-                val action =
-                    MapResultsFragmentDirections.actionMapResultsFragmentToListResultsFragment()
-                navController.navigate(action)
-            }
+        }
+        binding.goToListButton.setOnClickListener {
+            val action =
+                MapResultsFragmentDirections.actionMapResultsFragmentToListResultsFragment()
+            navController.navigate(action)
         }
     }
 
@@ -162,14 +152,19 @@ class MapResultsFragment : BaseFragment() {
     //endregion
 
     //region Private Functions
-    private fun renderMarkers(restaurants: List<Restaurant>) {
+    private fun renderMapWithResults(
+        restaurants: List<Restaurant>,
+        cameraMovement: CameraUpdate?
+    ) {
         googleMap.clear()
+        cameraMovement?.let { googleMap.moveCamera(it) }
         restaurants.forEach { restaurant ->
-            val latLng = LatLng(restaurant.geometry.location.lat, restaurant.geometry.location.lng)
+            val latLng =
+                LatLng(restaurant.geometry.location.lat, restaurant.geometry.location.lng)
             val markerOptions = MarkerOptions().position(latLng)
             val marker = googleMap.addMarker(markerOptions)
-            var formattedPriceString = restaurant.formatPrice(restaurant.priceLevel)
-            var formattedRatingsCount = "(${restaurant.userRatingsTotal})"
+            val formattedPriceString = restaurant.formatPrice(restaurant.priceLevel)
+            val formattedRatingsCount = "(${restaurant.userRatingsTotal})"
             marker.tag = MarkerInfo(
                 restaurant.isFavorite,
                 restaurant.placeId,

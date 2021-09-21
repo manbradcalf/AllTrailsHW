@@ -4,6 +4,7 @@ import androidx.annotation.WorkerThread
 import com.benmedcalf.alltrailshomework.model.local.PlaceDao
 import com.benmedcalf.alltrailshomework.model.local.PlaceEntity
 import com.benmedcalf.alltrailshomework.model.remote.GooglePlacesService
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
@@ -13,7 +14,7 @@ import javax.inject.Singleton
 class PlacesRepository
 @Inject
 constructor(private val placeDao: PlaceDao) {
-    var userLocation: android.location.Location? = null
+    lateinit var userLocation: LatLng
     private val _searchResponse =
         MutableStateFlow<Result>(Result.Loading())
     val searchResponseFlow: Flow<Result> = _searchResponse
@@ -34,7 +35,7 @@ constructor(private val placeDao: PlaceDao) {
     suspend fun loadSearchResultsFor(query: String) {
         val response = GooglePlacesService.instance.searchPlaces(
             50000,
-            "${userLocation?.latitude},${userLocation?.longitude}",
+            "${userLocation.latitude},${userLocation.longitude}",
             "restaurant",
             query
         )
