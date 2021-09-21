@@ -3,6 +3,8 @@ package com.benmedcalf.alltrailshomework.view
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
@@ -33,9 +35,10 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.filterbtn.setOnClickListener {
-            // TODO("show filtering options")
-            viewLifecycleOwner.lifecycleScope.launch {
-                mainViewModel.filterSearchResults()
+            if (binding.filterSection.visibility == GONE) {
+                binding.filterSection.visibility = VISIBLE
+            } else {
+                binding.filterSection.visibility = GONE
             }
         }
 
@@ -43,7 +46,7 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
         binding.searchBox.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 viewLifecycleOwner.lifecycleScope.launch {
-                    mainViewModel.updateSearchResults(query ?:"")
+                    mainViewModel.updateSearchResults(query ?: "")
                 }
                 return false
             }
