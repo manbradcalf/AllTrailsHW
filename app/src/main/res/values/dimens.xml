@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="text_margin_horizontal_item">16dp</dimen>
+    <dimen name="default_textview_margin">16dp</dimen>
     <dimen name="image_margin_item">16dp</dimen>
     <dimen name="content_padding_list">8dp</dimen>
 </resources>

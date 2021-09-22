@@ -13,7 +13,6 @@ import com.benmedcalf.alltrailshomework.R
 import com.benmedcalf.alltrailshomework.databinding.DetailFragmentBinding
 import com.benmedcalf.alltrailshomework.model.Restaurant
 import com.benmedcalf.alltrailshomework.viewmodel.DetailsViewModel
-import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -23,8 +22,6 @@ class DetailFragment : Fragment(R.layout.detail_fragment) {
     private var _binding: DetailFragmentBinding? = null
     private val binding get() = _binding!!
     private val args: DetailFragmentArgs by navArgs()
-
-    lateinit var restaurant: Restaurant
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,30 +33,25 @@ class DetailFragment : Fragment(R.layout.detail_fragment) {
     }
 
     // Move this to Flow and
-    private fun setObservers() {
-        viewModel.details.observe((viewLifecycleOwner), { placeDetails ->
-            placeDetails?.result?.let { restaurant ->
-                val rating = restaurant.rating.toFloat()
-                val userRatings = "(${restaurant.userRatingsTotal})"
-                val name = restaurant.name
+    private fun setView(restaurant: Restaurant) {
+        binding.detailTitle.text = restaurant.name
+        binding.detailRating.rating = restaurant.rating.toFloat()
+        val ratingsCountString = "(${restaurant.userRatingsTotal})"
+        binding.detailRatingCount.text = ratingsCountString
 
-                placeDetails.result.photos?.let { photos ->
-                    Glide.with(requireContext()).load(photos[0].photoReference)
-                        .into(binding.detailImage)
-                }
-
-                binding.detailTitle.text = name
-                binding.detailRating.rating = rating
-                binding.detailRatingCount.text = userRatings
-            }
-        })
+        if (restaurant.isFavorite) {
+            binding.detailHeart.setBackgroundResource(R.drawable.ic_favorited)
+        } else {
+            binding.detailHeart.setBackgroundResource(R.drawable.ic_unfavorited)
+        }
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewModel = ViewModelProvider(this).get(DetailsViewModel::class.java)
         navController = findNavController()
-        setObservers()
-        viewModel.loadRestaurantData(args.placeId)
+
+        setView(args.restaurant)
         super.onViewCreated(view, savedInstanceState)
     }
 

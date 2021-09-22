@@ -3,4 +3,6 @@
     <string name="toggle_description">Toggles between Map and List Views</string>
     <string name="filter_btn_text">filter</string>
     <string name="restaurant_name_placeholder">Restaurant Name</string>
+    <string name="restaurant_type_placeholder">bar, restaurant, food, point_of_interest, establishment</string>
+    <string name="restaurant_rating_count_deault">(1200)</string>
 </resources>
