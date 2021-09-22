@@ -15,8 +15,8 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.benmedcalf.alltrailshomework.R
 import com.benmedcalf.alltrailshomework.databinding.FragmentMapsBinding
+import com.benmedcalf.alltrailshomework.model.Restaurant
 import com.benmedcalf.alltrailshomework.viewmodel.BaseViewModel
-import com.benmedcalf.alltrailshomework.viewmodel.MainViewModel
 import com.benmedcalf.alltrailshomework.viewmodel.MapViewModel
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.Marker
@@ -32,15 +32,6 @@ class MapResultsFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var navController: NavController
     private lateinit var googleMap: GoogleMap
-
-    data class MarkerInfo(
-        val isFavorite: Boolean,
-        val placeId: String,
-        val rating: Double,
-        val ratingCount: String,
-        val title: String,
-        val price: String
-    )
 
     //region Fragment Lifecycle
     override fun onCreateView(
@@ -121,11 +112,9 @@ class MapResultsFragment : Fragment() {
     }
 
     private val onInfoWindowClickListener = GoogleMap.OnInfoWindowClickListener { marker ->
-        val markerInfo = marker.tag as MarkerInfo
+        val restaurant = marker.tag as Restaurant
         val action =
-            MapResultsFragmentDirections.actionMapResultsFragmentToDetailFragment(
-                markerInfo.placeId
-            )
+            MapResultsFragmentDirections.actionMapResultsFragmentToDetailFragment(restaurant)
         navController.navigate(action)
     }
 
@@ -139,19 +128,19 @@ class MapResultsFragment : Fragment() {
         }
 
         private fun renderView(marker: Marker): View {
-            val markerInfo = marker.tag as MarkerInfo
-            val customView = layoutInflater.inflate(
+            val restaurant = marker.tag as Restaurant
+            val infoWindowView = layoutInflater.inflate(
                 R.layout.info_window, null
             )
-            val nameTextView: TextView = customView.findViewById(R.id.info_bubble_name)
-            nameTextView.text = markerInfo.title
+            val nameTextView: TextView = infoWindowView.findViewById(R.id.info_bubble_name)
+            nameTextView.text = restaurant.name
             val reviewsCountView: TextView =
-                customView.findViewById(R.id.rating_count)
-            reviewsCountView.text = markerInfo.ratingCount.toString()
-            val ratingView: RatingBar = customView.findViewById(R.id.rating)
-            ratingView.numStars = markerInfo.rating.toInt()
+                infoWindowView.findViewById(R.id.rating_count)
+            reviewsCountView.text = restaurant.userRatingsTotal.toString()
+            val ratingView: RatingBar = infoWindowView.findViewById(R.id.rating)
+            ratingView.numStars = restaurant.rating.toInt()
 
-            return customView
+            return infoWindowView
         }
     }
     //endregion
@@ -159,16 +148,16 @@ class MapResultsFragment : Fragment() {
     //region Private Functions
     private fun renderMapWithResults(
         cameraMovement: CameraUpdate?,
-        markers: List<Pair<MarkerOptions, MarkerInfo>>,
+        markers: List<Pair<MarkerOptions, Restaurant>>,
     ) {
         googleMap.clear()
         cameraMovement?.let { googleMap.moveCamera(it) }
         markers.forEach { optionsAndInfo ->
             val markerOptions = optionsAndInfo.first
-            val markerInfo = optionsAndInfo.second
+            val restaurantInfo = optionsAndInfo.second
 
             val marker = googleMap.addMarker(markerOptions)
-            marker.tag = markerInfo
+            marker?.tag = restaurantInfo
         }
     }
 //endregion

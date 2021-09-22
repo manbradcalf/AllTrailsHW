@@ -35,7 +35,7 @@ class ListResultsFragment : Fragment(R.layout.fragment_item_list) {
         _binding = FragmentItemListBinding.inflate(layoutInflater, container, false)
         val view = binding.root
         val navController = findNavController()
-        val listAdapter = PlacesRecyclerViewAdapter(searchResults, navController)
+        val listAdapter = RestaurantRecyclerViewAdapter(searchResults, navController)
         listAdapter.updateFavoriteStatus = listViewModel.onFavoriteClick
 
         with(binding.list) {

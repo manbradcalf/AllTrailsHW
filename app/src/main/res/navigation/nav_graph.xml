@@ -23,8 +23,8 @@
         android:label="restaurant_detail_fragment"
         tools:layout="@layout/detail_fragment">
         <argument
-            android:name="placeId"
-            app:argType="string" />
+            android:name="restaurant"
+            app:argType="com.benmedcalf.alltrailshomework.model.Restaurant" />
     </fragment>
     <fragment
         android:id="@+id/listResultsFragment"

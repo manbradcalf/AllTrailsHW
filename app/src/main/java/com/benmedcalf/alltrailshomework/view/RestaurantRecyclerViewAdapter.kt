@@ -41,7 +41,7 @@ class RestaurantRecyclerViewAdapter(
         holder.contentView.setOnClickListener {
             nav.navigate(
                 ListResultsFragmentDirections.actionListResultsFragmentToDetailFragment(
-                    restaurant.placeId
+                    restaurant
                 )
             )
         }
