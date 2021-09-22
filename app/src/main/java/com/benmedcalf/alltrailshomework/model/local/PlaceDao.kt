@@ -1,17 +1,16 @@
 package com.benmedcalf.alltrailshomework.model.local
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import com.benmedcalf.alltrailshomework.model.local.PlaceEntity
-import kotlinx.coroutines.flow.Flow
+import androidx.room.*
 
 
 @Dao
 interface PlaceDao {
-    @Query("Select * from PlaceEntity")
-    fun getAll(): Flow<List<PlaceEntity>>
+    @Query("Select _id from PlaceEntity")
+    fun getFavorites(): List<PlaceEntity>
 
     @Insert
-    fun insertPlace(placeEntity: PlaceEntity)
+    fun insert(placeEntity: PlaceEntity)
+
+    @Delete
+    suspend fun delete(placeEntity: PlaceEntity)
 }

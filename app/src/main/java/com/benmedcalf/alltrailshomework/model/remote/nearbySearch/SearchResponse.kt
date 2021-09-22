@@ -6,7 +6,6 @@ import com.google.gson.annotations.SerializedName
 
 data class SearchResponse(
     val htmlAttributions: List<Any>,
-    @SerializedName("results")
     val results: List<PlaceDetails>,
     val status: String
 )

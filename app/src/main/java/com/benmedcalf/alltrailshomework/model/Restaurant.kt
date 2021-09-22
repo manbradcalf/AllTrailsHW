@@ -4,10 +4,10 @@ import com.benmedcalf.alltrailshomework.model.remote.common.Geometry
 import com.benmedcalf.alltrailshomework.model.remote.common.Photo
 
 data class Restaurant(
-    val isFavorite: Boolean,
+    var isFavorite: Boolean,
     val geometry: Geometry,
     val name: String,
-    val photos: List<Photo>?,
+    val photoReference: String?,
     val placeId: String,
     val priceLevel: Int,
     val rating: Double,

@@ -1,72 +1,81 @@
 package com.benmedcalf.alltrailshomework.model
 
-import androidx.annotation.WorkerThread
 import com.benmedcalf.alltrailshomework.model.local.PlaceDao
 import com.benmedcalf.alltrailshomework.model.local.PlaceEntity
 import com.benmedcalf.alltrailshomework.model.remote.GooglePlacesService
+import com.benmedcalf.alltrailshomework.model.remote.common.PlaceDetails
 import com.google.android.gms.maps.model.LatLng
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class PlacesRepository
-@Inject
-constructor(private val placeDao: PlaceDao) {
+class PlacesRepository @Inject constructor(private val placeDao: PlaceDao) {
     lateinit var userLocation: LatLng
-    private val _searchResponse =
-        MutableStateFlow<Result>(Result.Loading())
-    val searchResponseFlow: Flow<Result> = _searchResponse
+    private val scope = CoroutineScope(Dispatchers.IO)
+    private val service = GooglePlacesService.instance
+    private val _searchResults = MutableStateFlow<RepoSearchResults>(RepoSearchResults.Loading())
+    val searchResults: Flow<RepoSearchResults> = _searchResults
 
-    // Room executes all queries on a separate thread.
-    // Observed Flow will notify the observer when the data has changed.
-    val favoritePlaces: Flow<List<PlaceEntity>> = placeDao.getAll()
 
-    // By default Room runs suspend queries off the main thread, therefore, we don't need to
-    // implement anything else to ensure we're not doing long running database work
-    // off the main thread.
-    @Suppress("RedundantSuspendModifier")
-    @WorkerThread
-    suspend fun insert(placeEntity: PlaceEntity) {
-        placeDao.insertPlace(placeEntity)
+    private fun mapAPIResponseToRestaurants(response: List<PlaceDetails>): ArrayList<Restaurant> {
+        val restaurants = arrayListOf<Restaurant>()
+        response.forEach { detail ->
+            val restaurant = detail.toRestaurant()
+            val isFavorite = !placeDao.getFavorites().none { detail.placeId == it._id }
+            restaurant.isFavorite = isFavorite
+            restaurants.add(restaurant)
+        }
+        return restaurants
     }
 
-    suspend fun loadSearchResultsFor(query: String) {
-        val response = GooglePlacesService.instance.searchPlaces(
-            50000,
-            "${userLocation.latitude},${userLocation.longitude}",
-            "restaurant",
-            query
-        )
-        if (response.isSuccessful) {
-            val restaurants = mutableListOf<Restaurant>()
-            response.body()?.results?.forEach { result ->
-                restaurants.add(result.toRestaurant())
+    private fun formatLatLng(latLng: LatLng): String {
+        return "${latLng.latitude},${latLng.longitude}"
+    }
+
+
+    suspend fun searchNearby(query: String) {
+        scope.launch {
+            val response = service.searchNearby(formatLatLng(userLocation), query)
+            if (response.isSuccessful) {
+                response.body()?.results?.let {
+                    _searchResults.value = RepoSearchResults.Success(mapAPIResponseToRestaurants(it))
+                }
+            } else {
+                _searchResults.value = RepoSearchResults.Error(response.errorBody().toString())
             }
-            _searchResponse.value = Result.Success(restaurants)
-        } else {
-            _searchResponse.value = Result.Failure(response.errorBody().toString())
         }
     }
 
-    class SearchParameters(
-        var radius: Int? = null,
-        var latLng: String,
-        var type: String? = null,
-        var name: String? = null
-    )
+    suspend fun updateIsFavorite(place: PlaceEntity) {
+        scope.launch {
+            // if its not in favoritesv
+            val favs = placeDao.getFavorites()
 
-    sealed class Result(
-        var value: List<Restaurant>? = null,
-        var error: String? = null
-    ) {
-        class Success(restaurants: List<Restaurant>) :
-            Result(value = restaurants)
-
-        class Failure(searchResponseError: String) :
-            Result(error = searchResponseError)
-
-        class Loading : Result()
+            if (favs.none { place._id == it._id }) {
+                // insert it
+                placeDao.insert(place)
+            } else {
+                placeDao.delete(place)
+            }
+        }
     }
+
+}
+
+sealed class RepoSearchResults(
+    var value: ArrayList<Restaurant>? = null,
+    var error: String? = null
+) {
+    class Success(restaurants: ArrayList<Restaurant>) :
+        RepoSearchResults(value = restaurants)
+
+    class Error(searchResponseError: String?) :
+        RepoSearchResults(error = searchResponseError)
+
+    class Loading : RepoSearchResults()
 }

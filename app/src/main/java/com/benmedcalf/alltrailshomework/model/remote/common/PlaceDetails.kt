@@ -1,7 +1,6 @@
 package com.benmedcalf.alltrailshomework.model.remote.common
 
 import com.benmedcalf.alltrailshomework.model.Restaurant
-import com.google.gson.annotations.SerializedName
 
 data class PlaceDetails(
     val businessStatus: String,
@@ -12,8 +11,7 @@ data class PlaceDetails(
     val name: String,
     val openingHours: OpeningHours,
     val permanentlyClosed: Boolean,
-    val photos: List<Photo>,
-    @SerializedName("place_id")
+    val photos: List<Photo>?,
     val placeId: String,
     val plusCode: PlusCode,
     val priceLevel: Int,
@@ -21,7 +19,6 @@ data class PlaceDetails(
     val reference: String,
     val scope: String,
     val types: List<String>,
-    @SerializedName("user_ratings_total")
     val userRatingsTotal: Int,
     val vicinity: String,
 ) {
@@ -34,6 +31,6 @@ data class PlaceDetails(
         userRatingsTotal = this.userRatingsTotal,
         rating = this.rating,
         priceLevel = this.priceLevel,
-        photos = this.photos
+        photoReference = this.photos?.first()?.photoReference
     )
 }

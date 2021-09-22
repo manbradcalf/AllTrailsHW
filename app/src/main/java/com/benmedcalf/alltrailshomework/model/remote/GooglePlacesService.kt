@@ -3,6 +3,9 @@ package com.benmedcalf.alltrailshomework.model.remote
 import com.benmedcalf.alltrailshomework.BuildConfig
 import com.benmedcalf.alltrailshomework.model.remote.nearbySearch.SearchResponse
 import com.benmedcalf.alltrailshomework.model.remote.placeDetails.PlaceDetailsResponse
+import com.google.gson.FieldNamingPolicy
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
@@ -20,6 +23,10 @@ object GooglePlacesService {
         val httpLoggingInterceptor = HttpLoggingInterceptor()
         httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
 
+        val gson: Gson = GsonBuilder()
+            .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+            .create()
+
         val client = okHttpBuilder
             .addInterceptor(httpLoggingInterceptor)
             .addInterceptor { chain ->
@@ -33,7 +40,7 @@ object GooglePlacesService {
         val retrofit = Retrofit.Builder()
             .baseUrl(baseURL)
             .client(client)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
 
         retrofit.create(PlacesAPI::class.java)
@@ -46,18 +53,10 @@ object GooglePlacesService {
             @Query("place_id") placeId: String
         ): Response<PlaceDetailsResponse>
 
-        @GET("nearbysearch/json")
-        suspend fun searchPlaces(
-            @Query("radius") radius: Int,
+        @GET("nearbysearch/json?radius=50000&type=restaurant")
+        suspend fun searchNearby(
             @Query("location") location: String,
-            @Query("type") type: String,
             @Query("name") name: String
         ): Response<SearchResponse>
-
-        @GET("findplacefromtext/json")
-        suspend fun searchByName(
-            @Query("input") input: String,
-            @Query("fields") fields: String
-        ): Response<PlaceDetailsResponse>
     }
 }
