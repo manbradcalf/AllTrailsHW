@@ -1,8 +1,9 @@
 package com.benmedcalf.alltrailshomework.model
 
+import android.os.Parcelable
 import com.benmedcalf.alltrailshomework.model.remote.common.Geometry
-import com.benmedcalf.alltrailshomework.model.remote.common.Photo
 
+@kotlinx.parcelize.Parcelize
 data class Restaurant(
     var isFavorite: Boolean,
     val geometry: Geometry,
@@ -12,7 +13,7 @@ data class Restaurant(
     val priceLevel: Int,
     val rating: Double,
     val userRatingsTotal: Int,
-) {
+) : Parcelable {
     fun formatPrice(priceLevel: Int): String {
         var priceString = ""
         repeat(priceLevel) {
