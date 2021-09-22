@@ -5,10 +5,10 @@
     android:layout_height="match_parent">
 
     <ProgressBar
-        android:id="@+id/loading_indicator"
+        android:id="@+id/loading_indicator_maps"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

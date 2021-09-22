@@ -1,5 +1,6 @@
 package com.benmedcalf.alltrailshomework.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.benmedcalf.alltrailshomework.model.PlacesRepository
 import com.benmedcalf.alltrailshomework.model.RepoSearchResults
@@ -21,7 +22,8 @@ class MapViewModel @Inject constructor(private val repository: PlacesRepository)
             repository.searchResults.collect {
                 when (it) {
                     is RepoSearchResults.Success -> {
-                        it.value?.let { results ->
+                        Log.i(TAG, "Got it!!")
+                        it.searchResults?.let { results ->
                             val cameraUpdate =
                                 CameraUpdateFactory.newLatLngZoom(repository.userLocation, 12.0f)
 
@@ -61,7 +63,7 @@ class MapViewModel @Inject constructor(private val repository: PlacesRepository)
                     }
                     is RepoSearchResults.Error -> {
                         //TODO: Result.Failure is of type List<Restaurant>. Revisit
-                        it.value?.let {
+                        it.searchResults?.let {
                             val errorState =
                                 UIState.Error<ScreenUpdate>(errorMessage = "Oops, an error occurred")
                             _uiState.value = errorState

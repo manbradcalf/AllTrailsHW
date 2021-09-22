@@ -43,32 +43,16 @@
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/filter_section"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_section">
-
         <RatingBar
             android:id="@+id/rating_filter"
             style="@android:style/Widget.Material.RatingBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="visible"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <com.google.android.material.slider.Slider
-            android:id="@+id/filter_slider"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:stepSize="0.1"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/search_section"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/rating_filter" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            />
+
 
     <View
         android:layout_width="match_parent"

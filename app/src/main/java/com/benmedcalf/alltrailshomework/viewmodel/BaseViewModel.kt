@@ -2,15 +2,13 @@ package com.benmedcalf.alltrailshomework.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.benmedcalf.alltrailshomework.model.PlacesRepository
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
-import javax.inject.Inject
 
 abstract class BaseViewModel<T> : ViewModel() {
+    val TAG = "${this.javaClass::class}"
     val _uiState = MutableStateFlow<UIState<T>>(UIState.Loading())
     val uiState: StateFlow<UIState<T>> = _uiState.stateIn(
         scope = viewModelScope,
@@ -20,10 +18,10 @@ abstract class BaseViewModel<T> : ViewModel() {
 
     sealed class UIState<T>(
         val data: T? = null,
-        val message: String? = null
+        val status: String
     ) {
-        class Success<T>(var value: T) : UIState<T>(data = value)
-        class Error<T>(errorMessage: String) : UIState<T>(message = errorMessage)
-        class Loading<T> : UIState<T>(null, null)
+        class Success<T>(var value: T) : UIState<T>(data = value, status="Success!")
+        class Error<T>(errorMessage: String) : UIState<T>(status = errorMessage)
+        class Loading<T> : UIState<T>(null, status = "loading")
     }
 }

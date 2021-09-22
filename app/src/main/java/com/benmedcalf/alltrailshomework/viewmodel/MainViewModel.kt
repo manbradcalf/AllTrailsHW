@@ -13,6 +13,6 @@ class MainViewModel @Inject constructor(private val repository: PlacesRepository
     }
 
     fun filterSearchResults() {
-        //TODO("implement")
+//        repository.searchResults(query)
     }
 }

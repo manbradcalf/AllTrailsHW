@@ -35,10 +35,10 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.filterbtn.setOnClickListener {
-            if (binding.filterSection.visibility == GONE) {
-                binding.filterSection.visibility = VISIBLE
+            if (binding.ratingFilter.visibility == GONE) {
+                binding.ratingFilter.visibility = VISIBLE
             } else {
-                binding.filterSection.visibility = GONE
+                binding.ratingFilter.visibility = GONE
             }
         }
 
@@ -54,8 +54,10 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
             override fun onQueryTextChange(newText: String?): Boolean {
                 return true
             }
-
         })
 
+//        binding.ratingFilter.setOnRatingBarChangeListener({
+////            mainViewModel.filterSearchResults()
+//        })
     }
 }

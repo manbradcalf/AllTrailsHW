@@ -68,11 +68,11 @@ class PlacesRepository @Inject constructor(private val placeDao: PlaceDao) {
 }
 
 sealed class RepoSearchResults(
-    var value: ArrayList<Restaurant>? = null,
+    var searchResults: ArrayList<Restaurant>? = null,
     var error: String? = null
 ) {
     class Success(restaurants: ArrayList<Restaurant>) :
-        RepoSearchResults(value = restaurants)
+        RepoSearchResults(searchResults = restaurants)
 
     class Error(searchResponseError: String?) :
         RepoSearchResults(error = searchResponseError)

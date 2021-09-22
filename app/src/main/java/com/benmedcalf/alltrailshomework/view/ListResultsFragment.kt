@@ -57,15 +57,29 @@ class ListResultsFragment : Fragment(R.layout.fragment_item_list) {
                 listViewModel.uiState.collect { listUiState ->
                     when (listUiState) {
                         is BaseViewModel.UIState.Success -> {
-                            listUiState.value.value?.let { restaurants ->
-                                renderResults(restaurants)
+                            binding.loadingIndicatorList.visibility = View.GONE
+
+                            if (listUiState.value.searchResults != null) {
+                                renderResults(listUiState.value.searchResults!!)
+                            } else {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "No results! Try again",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         }
                         is BaseViewModel.UIState.Error -> {
-                            Toast.makeText(requireContext(), "Oopsie!", Toast.LENGTH_SHORT).show()
+                            binding.loadingIndicatorList.visibility = View.GONE
+
+                            Toast.makeText(
+                                requireContext(),
+                                "An error occurred :(",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                         is BaseViewModel.UIState.Loading -> {
-                            Toast.makeText(requireContext(), "Loading!", Toast.LENGTH_SHORT).show()
+                            binding.loadingIndicatorList.visibility = View.VISIBLE
                         }
                     }
                 }

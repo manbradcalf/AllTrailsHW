@@ -56,7 +56,7 @@ object GooglePlacesService {
         @GET("nearbysearch/json?radius=50000&type=restaurant")
         suspend fun searchNearby(
             @Query("location") location: String,
-            @Query("name") name: String
+            @Query("keyword") name: String
         ): Response<SearchResponse>
     }
 }

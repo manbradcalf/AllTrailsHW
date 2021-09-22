@@ -1,6 +1,7 @@
 package com.benmedcalf.alltrailshomework.view
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -61,18 +62,27 @@ class MapResultsFragment : BaseFragment() {
                 mapViewModel.uiState.collect { mapUIState ->
                     when (mapUIState) {
                         is BaseViewModel.UIState.Success -> {
-                            mapUIState.data?.let { screen ->
-                                renderMapWithResults(screen.cameraMovement, screen.markers)
+                            binding.loadingIndicatorMaps.visibility = View.GONE
+                            if (mapUIState.data != null) {
+                                renderMapWithResults(
+                                    mapUIState.data.cameraMovement,
+                                    mapUIState.data.markers
+                                )
+                            } else {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "No results! Try again",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         }
-                        //TODO("this doesnt know when search viewmodel is loading...")
                         is BaseViewModel.UIState.Loading -> {
-                            binding.loadingIndicator.visibility = View.VISIBLE
+                            binding.loadingIndicatorMaps.visibility = View.VISIBLE
 
                         }
                         is BaseViewModel.UIState.Error -> {
-                            //TODO handle error map ui
-                            Toast.makeText(requireContext(), "Ooopsie!", Toast.LENGTH_SHORT).show()
+                            binding.loadingIndicatorMaps.visibility = View.GONE
+                            Log.e(TAG, "An error occured: ${mapUIState.status}")
                         }
                     }
                 }
