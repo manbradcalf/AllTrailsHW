@@ -7,8 +7,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(private val repository: PlacesRepository) : ViewModel() {
+
     suspend fun updateSearchResults(query: String) {
-        repository.loadSearchResultsFor(query)
+        repository.searchNearby(query)
     }
 
     fun filterSearchResults() {

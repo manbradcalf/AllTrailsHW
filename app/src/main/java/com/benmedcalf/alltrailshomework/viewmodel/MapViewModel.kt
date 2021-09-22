@@ -1,34 +1,26 @@
 package com.benmedcalf.alltrailshomework.viewmodel
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.benmedcalf.alltrailshomework.model.PlacesRepository
-import com.benmedcalf.alltrailshomework.model.Restaurant
+import com.benmedcalf.alltrailshomework.model.RepoSearchResults
 import com.benmedcalf.alltrailshomework.view.MapResultsFragment
 import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MapViewModel @Inject constructor(private val repository: PlacesRepository) : ViewModel() {
-    // private backing val
-    private val _uiState = MutableStateFlow<MapUIState>(MapUIState.Loading())
-    val uiState: StateFlow<MapUIState> = _uiState.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = MapUIState.Loading()
-    )
-
+class MapViewModel @Inject constructor(private val repository: PlacesRepository) :
+    BaseViewModel<ScreenUpdate>() {
     init {
         viewModelScope.launch {
-            repository.searchResponseFlow.collect {
+            repository.searchResults.collect {
                 when (it) {
-                    is PlacesRepository.Result.Success -> {
+                    is RepoSearchResults.Success -> {
                         it.value?.let { results ->
                             val cameraUpdate =
                                 CameraUpdateFactory.newLatLngZoom(repository.userLocation, 12.0f)
@@ -59,23 +51,24 @@ class MapViewModel @Inject constructor(private val repository: PlacesRepository)
                                 markers.add(Pair(markersOptions, markerInfo))
                             }
 
-                            val screen = Screen(
+                            val screen = ScreenUpdate(
                                 cameraMovement = cameraUpdate,
                                 markers = markers.toList()
                             )
-                            val newState = MapUIState.Success(screen)
+                            val newState = UIState.Success(screen)
                             _uiState.value = newState
                         }
                     }
-                    is PlacesRepository.Result.Failure -> {
+                    is RepoSearchResults.Error -> {
                         //TODO: Result.Failure is of type List<Restaurant>. Revisit
                         it.value?.let {
-                            val errorState = MapUIState.Error(error = "Oops, an error occurred")
+                            val errorState =
+                                UIState.Error<ScreenUpdate>(errorMessage = "Oops, an error occurred")
                             _uiState.value = errorState
                         }
                     }
-                    is PlacesRepository.Result.Loading -> {
-                        val loadingState = MapUIState.Loading()
+                    is RepoSearchResults.Loading -> {
+                        val loadingState = UIState.Loading<ScreenUpdate>()
                         _uiState.value = loadingState
                     }
                 }
@@ -85,19 +78,8 @@ class MapViewModel @Inject constructor(private val repository: PlacesRepository)
 }
 
 
-data class Screen(
+data class ScreenUpdate(
     val cameraMovement: CameraUpdate,
     val markers: List<Pair<MarkerOptions, MapResultsFragment.MarkerInfo>>
 )
-
-sealed class MapUIState(
-    val data: Screen? = null,
-    val message: String? = null
-) {
-    class Loading : MapUIState(null, null)
-    class Success(screen: Screen) :
-        MapUIState(screen)
-
-    class Error(error: String) : MapUIState(message = error)
-}
 
