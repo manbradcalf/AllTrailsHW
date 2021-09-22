@@ -14,11 +14,13 @@ data class Restaurant(
     val rating: Double,
     val userRatingsTotal: Int,
 ) : Parcelable {
-    fun formatPrice(priceLevel: Int): String {
-        var priceString = ""
-        repeat(priceLevel) {
-            priceString += "$"
+    companion object {
+        fun formatPrice(priceLevel: Int): String {
+            var priceString = ""
+            repeat(priceLevel) {
+                priceString += "$"
+            }
+            return priceString
         }
-        return priceString
     }
 }

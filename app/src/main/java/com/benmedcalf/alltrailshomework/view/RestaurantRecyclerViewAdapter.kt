@@ -37,7 +37,7 @@ class RestaurantRecyclerViewAdapter(
         holder.rating.numStars = restaurant.rating.toInt()
         holder.name.text = restaurant.name
         holder.contentView.tag = restaurant
-        holder.supportingText.text = restaurant.formatPrice(restaurant.priceLevel)
+        holder.supportingText.text = Restaurant.formatPrice(restaurant.priceLevel)
         holder.contentView.setOnClickListener {
             nav.navigate(
                 ListResultsFragmentDirections.actionListResultsFragmentToDetailFragment(
@@ -68,7 +68,7 @@ class RestaurantRecyclerViewAdapter(
     private fun setImageThumbnail(thumbnail: ImageView, imageReference: String) {
         val photoUrl =
             "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${imageReference}&key=${apikey}"
-        Glide.with(thumbnail.context).load(photoUrl).into(thumbnail)
+        Glide.with(thumbnail.context).load(photoUrl).circleCrop().into(thumbnail)
     }
 
     override fun getItemCount(): Int = values.size

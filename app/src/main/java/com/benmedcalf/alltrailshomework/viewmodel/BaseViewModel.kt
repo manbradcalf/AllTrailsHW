@@ -19,7 +19,7 @@ abstract class BaseViewModel<T> : ViewModel() {
         val data: T? = null,
         val status: String
     ) {
-        class Success<T>(var value: T) : UIState<T>(data = value, status="Success!")
+        class Success<T>(var value: T) : UIState<T>(data = value, status = "Success!")
         class Error<T>(errorMessage: String) : UIState<T>(status = errorMessage)
         class Loading<T> : UIState<T>(null, status = "loading")
     }

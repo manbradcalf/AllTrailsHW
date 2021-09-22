@@ -9,51 +9,40 @@
 
     <ImageView
         android:id="@+id/detail_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/ic_restaurant"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
         app:layout_constraintBottom_toTopOf="@id/detail_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
 
     <TextView
         android:id="@+id/detail_title"
         style="@style/TextAppearance.AppCompat.Headline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/default_textview_margin"
         android:text="@string/restaurant_name_placeholder"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/detail_image" />
 
     <TextView
-        android:id="@+id/detail_open_status"
+        android:id="@+id/detail_price_level"
         style="@style/TextAppearance.AppCompat.Medium"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/default_textview_margin"
-        android:text="Open now!"
+        android:text="$$$$"
         app:layout_constraintBottom_toTopOf="@id/detail_rating"
         app:layout_constraintStart_toEndOf="@id/detail_title"
         app:layout_constraintTop_toBottomOf="@id/detail_image" />
-
-    <ImageButton
-        android:id="@+id/detail_heart"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:backgroundTint="@color/at_green"
-        android:background="@drawable/ic_unfavorited"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/detail_image"
-        app:layout_constraintBottom_toTopOf="@id/detail_map"/>
-
 
     <RatingBar
         android:id="@+id/detail_rating"
         style="@style/Widget.AppCompat.RatingBar.Small"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/default_textview_margin"
         android:layout_marginTop="4dp"
         android:numStars="5"
         android:rating="3.5"
@@ -66,6 +55,7 @@
         style="@style/TextAppearance.AppCompat.Small"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/default_textview_margin"
         android:text="@string/restaurant_rating_count_deault"
         app:layout_constraintBottom_toTopOf="@id/detail_text_box"
         app:layout_constraintStart_toEndOf="@id/detail_rating"
@@ -75,13 +65,16 @@
         android:id="@+id/detail_text_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/default_textview_margin"
         android:paddingVertical="@dimen/default_textview_margin"
         android:text="@string/restaurant_type_placeholder"
         app:layout_constraintTop_toBottomOf="@id/detail_rating" />
 
-    <com.google.android.gms.maps.MapView
+    <fragment
         android:id="@+id/detail_map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/detail_text_box"/>
+        app:layout_constraintTop_toBottomOf="@id/detail_text_box"
+        tools:context=".view.DetailFragment" />
 </androidx.constraintlayout.widget.ConstraintLayout>

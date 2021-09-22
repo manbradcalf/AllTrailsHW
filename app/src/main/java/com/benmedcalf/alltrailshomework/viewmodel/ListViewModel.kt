@@ -1,9 +1,9 @@
 package com.benmedcalf.alltrailshomework.viewmodel
 
 import androidx.lifecycle.viewModelScope
-import com.benmedcalf.alltrailshomework.model.PlacesRepository
-import com.benmedcalf.alltrailshomework.model.RepoSearchResults
-import com.benmedcalf.alltrailshomework.model.RepoSearchResults.Error
+import com.benmedcalf.alltrailshomework.model.RepoResponse
+import com.benmedcalf.alltrailshomework.model.RepoResponse.Error
+import com.benmedcalf.alltrailshomework.model.Repository
 import com.benmedcalf.alltrailshomework.model.Restaurant
 import com.benmedcalf.alltrailshomework.model.local.PlaceEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ListViewModel
-@Inject constructor(private val repository: PlacesRepository) : BaseViewModel<RepoSearchResults>() {
+@Inject constructor(private val repository: Repository) : BaseViewModel<RepoResponse>() {
     var onFavoriteClick: ((Restaurant) -> Unit)? = { restaurant ->
         CoroutineScope(Dispatchers.IO).launch {
             //TODO("only save id")
@@ -28,17 +28,17 @@ class ListViewModel
         viewModelScope.launch {
             repository.searchResults.collect { results ->
                 when (results) {
-                    is RepoSearchResults.Success -> {
-                        val newState = UIState.Success<RepoSearchResults>(results)
+                    is RepoResponse.Success -> {
+                        val newState = UIState.Success<RepoResponse>(results)
                         _uiState.value = newState
                     }
                     is Error -> {
                         val newState =
-                            UIState.Error<RepoSearchResults>(errorMessage = results.error!!)
+                            UIState.Error<RepoResponse>(errorMessage = results.error!!)
                         _uiState.value = newState
                     }
 
-                    is RepoSearchResults.Loading -> TODO()
+                    is RepoResponse.Loading -> TODO()
                 }
             }
         }

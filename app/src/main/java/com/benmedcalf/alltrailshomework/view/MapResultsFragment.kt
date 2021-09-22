@@ -41,13 +41,14 @@ class MapResultsFragment : Fragment() {
     ): View {
         _binding = FragmentMapsBinding.inflate(layoutInflater, container, false)
         val view = binding.root
+        binding.loadingIndicatorMaps.visibility = View.VISIBLE
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         navController = findNavController()
-
         mapFragment?.getMapAsync(mapReadyCallback)
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -79,7 +80,6 @@ class MapResultsFragment : Fragment() {
                     }
                 }
             }
-            super.onViewCreated(view, savedInstanceState)
         }
 
         binding.goToListButton.setOnClickListener {

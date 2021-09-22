@@ -11,7 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import com.benmedcalf.alltrailshomework.databinding.ActivityMainBinding
-import com.benmedcalf.alltrailshomework.model.PlacesRepository
+import com.benmedcalf.alltrailshomework.model.Repository
 import com.benmedcalf.alltrailshomework.viewmodel.MainViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -23,7 +23,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     @Inject
-    lateinit var repo: PlacesRepository
+    lateinit var repo: Repository
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
     private val mainViewModel: MainViewModel by viewModels()

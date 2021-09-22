@@ -1,8 +1,8 @@
 package com.benmedcalf.alltrailshomework.viewmodel
 
 import androidx.lifecycle.viewModelScope
-import com.benmedcalf.alltrailshomework.model.PlacesRepository
-import com.benmedcalf.alltrailshomework.model.RepoSearchResults
+import com.benmedcalf.alltrailshomework.model.RepoResponse
+import com.benmedcalf.alltrailshomework.model.Repository
 import com.benmedcalf.alltrailshomework.model.Restaurant
 import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -14,48 +14,35 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MapViewModel @Inject constructor(private val repository: PlacesRepository) :
+class MapViewModel @Inject constructor(private val repository: Repository) :
     BaseViewModel<ScreenUpdate>() {
     init {
         viewModelScope.launch {
-            repository.searchResults.collect {
-                when (it) {
-                    is RepoSearchResults.Success -> {
-                        it.searchResults?.let { results ->
-                            val cameraUpdate =
-                                CameraUpdateFactory.newLatLngZoom(repository.userLocation, 12.0f)
-
-                            var markers =
-                                mutableListOf<Pair<MarkerOptions, Restaurant>>()
-
-                            results.forEach { result ->
-                                val latLng =
-                                    LatLng(
-                                        result.geometry.location.lat,
-                                        result.geometry.location.lng
-                                    )
-                                val markersOptions =
-                                    MarkerOptions().position(latLng).title(result.name)
-                                markers.add(Pair(markersOptions, result))
-                            }
-
-                            val screen = ScreenUpdate(
-                                cameraMovement = cameraUpdate,
-                                markers = markers.toList()
+            repository.searchResults.collect { repoSearchResults ->
+                when (repoSearchResults) {
+                    is RepoResponse.Success -> {
+                        repoSearchResults.searchResults?.let { results ->
+                            val latLng =
+                                LatLng(
+                                    repository.userLocation.latitude,
+                                    repository.userLocation.longitude
+                                )
+                            val newState = UIState.Success(
+                                mapResultsToScreenState(
+                                    results, latLng
+                                )
                             )
-                            val newState = UIState.Success(screen)
                             _uiState.value = newState
                         }
                     }
-                    is RepoSearchResults.Error -> {
-                        //TODO: Result.Failure is of type List<Restaurant>. Revisit
-                        it.searchResults?.let {
+                    is RepoResponse.Error -> {
+                        repoSearchResults.searchResults?.let {
                             val errorState =
                                 UIState.Error<ScreenUpdate>(errorMessage = "Oops, an error occurred")
                             _uiState.value = errorState
                         }
                     }
-                    is RepoSearchResults.Loading -> {
+                    is RepoResponse.Loading -> {
                         val loadingState = UIState.Loading<ScreenUpdate>()
                         _uiState.value = loadingState
                     }
@@ -63,9 +50,42 @@ class MapViewModel @Inject constructor(private val repository: PlacesRepository)
             }
         }
     }
+
+    private fun mapResultsToScreenState(
+        searchResults: List<Restaurant>,
+        latLng: LatLng
+    ): ScreenUpdate {
+        val cameraUpdate =
+            CameraUpdateFactory.newLatLngZoom(
+                latLng, 12.0f
+            )
+
+        val markers =
+            mutableListOf<Pair<MarkerOptions, Restaurant>>()
+
+        searchResults.forEach { result ->
+            val latLng =
+                LatLng(
+                    result.geometry.location.lat,
+                    result.geometry.location.lng
+                )
+
+            val markersOptions =
+                MarkerOptions()
+                    .position(latLng)
+                    .title(result.name)
+
+            markers.add(Pair(markersOptions, result))
+        }
+
+        return ScreenUpdate(
+            cameraMovement = cameraUpdate,
+            markers = markers.toList()
+        )
+    }
 }
 
-data class ScreenUpdate(
+class ScreenUpdate(
     val cameraMovement: CameraUpdate,
     val markers: List<Pair<MarkerOptions, Restaurant>>
 )

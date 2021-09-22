@@ -14,12 +14,12 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class PlacesRepository @Inject constructor(private val placeDao: PlaceDao) {
+class Repository @Inject constructor(private val placeDao: PlaceDao) {
     lateinit var userLocation: LatLng
     private val scope = CoroutineScope(Dispatchers.IO)
     private val service = GooglePlacesService.instance
-    private val _searchResults = MutableStateFlow<RepoSearchResults>(RepoSearchResults.Loading())
-    val searchResults: Flow<RepoSearchResults> = _searchResults
+    private val _searchResults = MutableStateFlow<RepoResponse>(RepoResponse.Loading())
+    val searchResults: Flow<RepoResponse> = _searchResults
 
 
     private fun mapAPIResponseToRestaurants(response: List<PlaceDetails>): ArrayList<Restaurant> {
@@ -43,10 +43,10 @@ class PlacesRepository @Inject constructor(private val placeDao: PlaceDao) {
             val response = service.searchNearby(formatLatLng(userLocation), query)
             if (response.isSuccessful) {
                 response.body()?.results?.let {
-                    _searchResults.value = RepoSearchResults.Success(mapAPIResponseToRestaurants(it))
+                    _searchResults.value = RepoResponse.Success(mapAPIResponseToRestaurants(it))
                 }
             } else {
-                _searchResults.value = RepoSearchResults.Error(response.errorBody().toString())
+                _searchResults.value = RepoResponse.Error(response.errorBody().toString())
             }
         }
     }
@@ -67,15 +67,15 @@ class PlacesRepository @Inject constructor(private val placeDao: PlaceDao) {
 
 }
 
-sealed class RepoSearchResults(
+sealed class RepoResponse(
     var searchResults: ArrayList<Restaurant>? = null,
     var error: String? = null
 ) {
     class Success(restaurants: ArrayList<Restaurant>) :
-        RepoSearchResults(searchResults = restaurants)
+        RepoResponse(searchResults = restaurants)
 
     class Error(searchResponseError: String?) :
-        RepoSearchResults(error = searchResponseError)
+        RepoResponse(error = searchResponseError)
 
-    class Loading : RepoSearchResults()
+    class Loading : RepoResponse()
 }
