@@ -8,13 +8,12 @@ import android.widget.RatingBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.whenCreated
+import androidx.lifecycle.*
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.benmedcalf.alltrailshomework.R
 import com.benmedcalf.alltrailshomework.databinding.FragmentMapsBinding
-import com.benmedcalf.alltrailshomework.viewmodel.MapUIState
+import com.benmedcalf.alltrailshomework.viewmodel.BaseViewModel
 import com.benmedcalf.alltrailshomework.viewmodel.MapViewModel
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.Marker
@@ -52,38 +51,35 @@ class MapResultsFragment : BaseFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         navController = findNavController()
 
-        if (savedInstanceState == null) {
-            mapFragment?.getMapAsync(mapReadyCallback)
-        }
+        mapFragment?.getMapAsync(mapReadyCallback)
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.lifecycle.whenCreated {
+            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 mapViewModel.uiState.collect { mapUIState ->
                     when (mapUIState) {
-                        is MapUIState.Success -> {
+                        is BaseViewModel.UIState.Success -> {
                             mapUIState.data?.let { screen ->
                                 renderMapWithResults(screen.cameraMovement, screen.markers)
                             }
                         }
                         //TODO("this doesnt know when search viewmodel is loading...")
-                        is MapUIState.Loading -> {
+                        is BaseViewModel.UIState.Loading -> {
                             binding.loadingIndicator.visibility = View.VISIBLE
 
                         }
-                        is MapUIState.Error -> {
+                        is BaseViewModel.UIState.Error -> {
                             //TODO handle error map ui
                             Toast.makeText(requireContext(), "Ooopsie!", Toast.LENGTH_SHORT).show()
                         }
                     }
-
                 }
             }
-            //TODO: How to make this a toggle button accessible by both list and map
+            super.onViewCreated(view, savedInstanceState)
         }
+
         binding.goToListButton.setOnClickListener {
             val action =
                 MapResultsFragmentDirections.actionMapResultsFragmentToListResultsFragment()

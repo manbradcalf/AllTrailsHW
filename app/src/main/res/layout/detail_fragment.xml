@@ -4,47 +4,45 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     tools:context=".view.DetailFragment">
 
-    <ImageView
-        android:id="@+id/detail_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/detail_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_restaurant"
+            app:layout_constraintBottom_toTopOf="@id/detail_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
 
     <TextView
         android:id="@+id/detail_title"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Hello"
-        app:layout_constraintEnd_toEndOf="parent"
+        style="@style/TextAppearance.AppCompat.Headline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/restaurant_name_placeholder"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/detail_image" />
+        app:layout_constraintTop_toBottomOf="@id/detail_image"/>
 
     <RatingBar
         android:id="@+id/detail_rating"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        style="@style/Widget.AppCompat.RatingBar.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:isIndicator="true"
         android:numStars="5"
-        android:rating="4"
-        android:stepSize="0.1"
-        android:text="Hello"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/detail_title" />
+        android:rating="3"
+        android:stepSize="1"
+        app:layout_constraintTop_toBottomOf="@id/detail_title"/>
 
     <TextView
         android:id="@+id/detail_rating_count"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Hello"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/detail_rating" />
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/detail_rating"
+        android:text="Hello" />
 </androidx.constraintlayout.widget.ConstraintLayout>
