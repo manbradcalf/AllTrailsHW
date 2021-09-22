@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 
 abstract class BaseViewModel<T> : ViewModel() {
-    val TAG = "${this.javaClass::class}"
     val _uiState = MutableStateFlow<UIState<T>>(UIState.Loading())
     val uiState: StateFlow<UIState<T>> = _uiState.stateIn(
         scope = viewModelScope,

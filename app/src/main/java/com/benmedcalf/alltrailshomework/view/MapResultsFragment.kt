@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.RatingBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.*
 import androidx.navigation.NavController
@@ -15,6 +16,7 @@ import androidx.navigation.fragment.findNavController
 import com.benmedcalf.alltrailshomework.R
 import com.benmedcalf.alltrailshomework.databinding.FragmentMapsBinding
 import com.benmedcalf.alltrailshomework.viewmodel.BaseViewModel
+import com.benmedcalf.alltrailshomework.viewmodel.MainViewModel
 import com.benmedcalf.alltrailshomework.viewmodel.MapViewModel
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.Marker
@@ -24,7 +26,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class MapResultsFragment : BaseFragment() {
+class MapResultsFragment : Fragment() {
     private val mapViewModel: MapViewModel by viewModels()
     private var _binding: FragmentMapsBinding? = null
     private val binding get() = _binding!!
@@ -78,11 +80,10 @@ class MapResultsFragment : BaseFragment() {
                         }
                         is BaseViewModel.UIState.Loading -> {
                             binding.loadingIndicatorMaps.visibility = View.VISIBLE
-
                         }
                         is BaseViewModel.UIState.Error -> {
                             binding.loadingIndicatorMaps.visibility = View.GONE
-                            Log.e(TAG, "An error occured: ${mapUIState.status}")
+                            Log.e("MapResultsFragment", "An error occurred: ${mapUIState.status}")
                         }
                     }
                 }

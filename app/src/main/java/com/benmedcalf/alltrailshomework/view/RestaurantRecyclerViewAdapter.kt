@@ -15,10 +15,10 @@ import com.benmedcalf.alltrailshomework.databinding.FragmentItemBinding
 import com.benmedcalf.alltrailshomework.model.Restaurant
 import com.bumptech.glide.Glide
 
-class PlacesRecyclerViewAdapter(
+class RestaurantRecyclerViewAdapter(
     private val values: ArrayList<Restaurant>,
     private val nav: NavController,
-) : RecyclerView.Adapter<PlacesRecyclerViewAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<RestaurantRecyclerViewAdapter.ViewHolder>() {
     // This is set by the ViewModel
     var updateFavoriteStatus: ((Restaurant) -> Unit)? = null
 

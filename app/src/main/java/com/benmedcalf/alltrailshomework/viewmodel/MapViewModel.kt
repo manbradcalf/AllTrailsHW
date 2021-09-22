@@ -1,6 +1,5 @@
 package com.benmedcalf.alltrailshomework.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.benmedcalf.alltrailshomework.model.PlacesRepository
 import com.benmedcalf.alltrailshomework.model.RepoSearchResults
@@ -22,7 +21,6 @@ class MapViewModel @Inject constructor(private val repository: PlacesRepository)
             repository.searchResults.collect {
                 when (it) {
                     is RepoSearchResults.Success -> {
-                        Log.i(TAG, "Got it!!")
                         it.searchResults?.let { results ->
                             val cameraUpdate =
                                 CameraUpdateFactory.newLatLngZoom(repository.userLocation, 12.0f)

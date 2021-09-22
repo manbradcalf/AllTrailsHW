@@ -11,8 +11,4 @@ class MainViewModel @Inject constructor(private val repository: PlacesRepository
     suspend fun updateSearchResults(query: String) {
         repository.searchNearby(query)
     }
-
-    fun filterSearchResults() {
-//        repository.searchResults(query)
-    }
 }

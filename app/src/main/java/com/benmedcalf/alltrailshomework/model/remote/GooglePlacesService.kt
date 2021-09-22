@@ -53,7 +53,7 @@ object GooglePlacesService {
             @Query("place_id") placeId: String
         ): Response<PlaceDetailsResponse>
 
-        @GET("nearbysearch/json?radius=50000&type=restaurant")
+        @GET("nearbysearch/json?radius=25000&type=restaurant")
         suspend fun searchNearby(
             @Query("location") location: String,
             @Query("keyword") name: String
