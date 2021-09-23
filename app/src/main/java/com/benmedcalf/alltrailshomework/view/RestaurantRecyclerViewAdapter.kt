@@ -34,7 +34,7 @@ class RestaurantRecyclerViewAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val restaurant = values[position]
-        holder.rating.numStars = restaurant.rating.toInt()
+        holder.rating.rating = restaurant.rating.toFloat()
         holder.name.text = restaurant.name
         holder.contentView.tag = restaurant
         holder.supportingText.text = Restaurant.formatPrice(restaurant.priceLevel)
