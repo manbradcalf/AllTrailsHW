@@ -26,19 +26,22 @@ class ListViewModel
 
     init {
         viewModelScope.launch {
-            repository.searchResults.collect { results ->
-                when (results) {
+            repository.searchResults.collect { repoSearchResults ->
+                when (repoSearchResults) {
                     is RepoResponse.Success -> {
-                        val newState = UIState.Success<RepoResponse>(results)
+                        val newState = UIState.Success<RepoResponse>(repoSearchResults)
                         _uiState.value = newState
                     }
                     is Error -> {
                         val newState =
-                            UIState.Error<RepoResponse>(errorMessage = results.error!!)
+                            UIState.Error<RepoResponse>(errorMessage = repoSearchResults.error!!)
                         _uiState.value = newState
                     }
 
-                    is RepoResponse.Loading -> TODO()
+                    is RepoResponse.Loading -> {
+                        val newState = UIState.Loading<RepoResponse>()
+                        _uiState.value = newState
+                    }
                 }
             }
         }

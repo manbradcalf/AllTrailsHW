@@ -85,7 +85,7 @@ class MapViewModel @Inject constructor(private val repository: Repository) :
     }
 }
 
-class ScreenUpdate(
+data class ScreenUpdate(
     val cameraMovement: CameraUpdate,
     val markers: List<Pair<MarkerOptions, Restaurant>>
 )

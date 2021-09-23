@@ -21,7 +21,6 @@ class Repository @Inject constructor(private val placeDao: PlaceDao) {
     private val _searchResults = MutableStateFlow<RepoResponse>(RepoResponse.Loading())
     val searchResults: Flow<RepoResponse> = _searchResults
 
-
     private fun mapAPIResponseToRestaurants(response: List<PlaceDetails>): ArrayList<Restaurant> {
         val restaurants = arrayListOf<Restaurant>()
         response.forEach { detail ->
@@ -40,6 +39,7 @@ class Repository @Inject constructor(private val placeDao: PlaceDao) {
 
     suspend fun searchNearby(query: String) {
         scope.launch {
+            _searchResults.value = RepoResponse.Loading()
             val response = service.searchNearby(formatLatLng(userLocation), query)
             if (response.isSuccessful) {
                 response.body()?.results?.let {
